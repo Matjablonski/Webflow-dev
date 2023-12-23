@@ -17,6 +17,9 @@ dependencies:
   '@react-three/postprocessing':
     specifier: '2.15'
     version: 2.15.11(@react-three/fiber@8.15.12)(@types/three@0.159.0)(react@18.2.0)(three@0.159.0)
+  gsap:
+    specifier: ^3.12.4
+    version: 3.12.4
   lamina:
     specifier: ^1.1.23
     version: 1.1.23(@react-three/fiber@8.15.12)(react-dom@18.2.0)(react@18.2.0)(three@0.159.0)
@@ -2484,6 +2487,10 @@ packages:
   /graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
     dev: true
+
+  /gsap@3.12.4:
+    resolution: {integrity: sha512-1ByAq8dD0W4aBZ/JArgaQvc0gyUfkGkP8mgAQa0qZGdpOKlSOhOf+WNXjoLimKaKG3Z4Iu6DKZtnyszqQeyqWQ==}
+    dev: false
 
   /hard-rejection@2.1.0:
     resolution: {integrity: sha512-VIZB+ibDhx7ObhAe7OVtoEbuP4h/MuOTHJ+J8h/eBXotJYl0fBgR72xDFCKgIh22OJZIOVNxBMWuhAr10r8HdA==}

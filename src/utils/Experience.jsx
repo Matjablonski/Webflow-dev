@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import React from 'react'
-import { useRef, useState, useMemo } from "react"
-import { useFrame } from '@react-three/fiber'
+import { useRef, useEffect, useState, useMemo } from "react"
+import { useFrame, useThree } from '@react-three/fiber'
 import { Html, CameraControls, AccumulativeShadows, Environment, Lightformer, RandomizedLight, Float } from "@react-three/drei"
 import { LayerMaterial, Color, Depth } from 'lamina'
 import { EffectComposer, Noise } from '@react-three/postprocessing'
@@ -22,6 +22,40 @@ export default function Experience() {
     const [degraded, degrade] = useState(false)
     const [hidden, set] = useState()
     const car = useRef()
+    const cameraControl = useRef()
+    const btn = document.querySelector('.btn')
+    const { gl } = useThree()
+
+    let status = false
+    let camera = useThree((state) => state.camera)
+
+    useEffect((state) => {
+
+        cameraControl.current.disconnect()
+
+        btn.addEventListener('click', () => {
+
+            // let p = camera.position.clone()
+            // cameraControl.current.reset()
+            // cameraControl.current.disconnect()
+            if ( status === false ) {
+                cameraControl.current.connect( gl.domElement )
+                status = true
+                return
+            } else if ( status === true ) {
+                cameraControl.current.disconnect()
+                status = false
+                return
+            }
+            console.log(status)
+            // cameraControl.current.enabled = true
+            // console.log('clicked')
+            // camera.position.copy(p)
+
+        }, [ camera ])
+
+    })
+
     // const [target] = useState(() => new THREE.Object3D())
     // const carLight = useRef()
     // const spotlight = useMemo(() => new THREE.SpotLight('#fff'), [])
@@ -31,9 +65,26 @@ export default function Experience() {
 
     return <>
 
-        {/* <CameraControls enableDamping='true' dampingFactor={0.002} maxDistance={18} minDistance={6} minPolarAngle={0} maxPolarAngle={Math.PI * 0.5} /> */}
+        <CameraControls 
+            ref={cameraControl} 
+            enabled={true} 
+            smoothTime={0.45} 
+            boundaryEnclosesCamera={true} 
+            maxDistance={14} 
+            minDistance={6} 
+            minPolarAngle={0.4} 
+            maxPolarAngle={Math.PI * 0.5} 
+        />
 
-        <spotLight position={[0, 15, 0]} angle={0.3} penumbra={1} castShadow intensity={2} shadow-bias={-0.0001} />
+        <spotLight 
+            position={[0, 15, 0]} 
+            angle={0.3} 
+            penumbra={1} 
+            castShadow 
+            intensity={2} 
+            shadow-bias={-0.0001} 
+        />
+
         <ambientLight intensity={0.5} />
 
         <mesh ref={ car } position={[0, -1, 0]}>
