@@ -1,14 +1,11 @@
 import * as THREE from 'three'
-import { Vector3 } from 'three'
 import React from 'react'
-import { useRef, useEffect, useState, useMemo } from "react"
+import { useRef, useEffect, useState } from "react"
 import gsap from 'gsap'
 import { useFrame, useThree } from '@react-three/fiber'
-import { Html, CameraControls, AccumulativeShadows, Environment, Lightformer, RandomizedLight, Float, SpotLightHelper } from "@react-three/drei"
+import { Html, CameraControls, AccumulativeShadows, Environment, Lightformer, RandomizedLight, Float } from "@react-three/drei"
 import { LayerMaterial, Color, Depth } from 'lamina'
 import { useControls } from 'leva'
-import { EffectComposer, Bloom, ToneMapping } from '@react-three/postprocessing'
-import { ToneMappingMode } from 'postprocessing'
 
 import Model from "./Model"
 
@@ -33,7 +30,7 @@ export default function Experience() {
     const rlights = useRef()
     const roof = useRef()
     const light = useRef()
-    useHelper(light, SpotLightHelper, 'cyan')
+    // useHelper(light, THREE.SpotLightHelper, 'cyan')
 
     const distFactor = 7
 
