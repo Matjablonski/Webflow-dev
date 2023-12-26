@@ -3,7 +3,7 @@ import React from 'react'
 import { useRef, useEffect, useState } from "react"
 import gsap from 'gsap'
 import { useFrame, useThree } from '@react-three/fiber'
-import { Html, CameraControls, AccumulativeShadows, Environment, Lightformer, RandomizedLight, Float } from "@react-three/drei"
+import { Html, CameraControls, AccumulativeShadows, Environment, Lightformer, RandomizedLight, Float, useHelper } from "@react-three/drei"
 import { LayerMaterial, Color, Depth } from 'lamina'
 import { useControls } from 'leva'
 
@@ -29,8 +29,9 @@ export default function Experience() {
     const lights = useRef()
     const rlights = useRef()
     const roof = useRef()
+    
     const light = useRef()
-    // useHelper(light, THREE.SpotLightHelper, 'cyan')
+    useHelper(light, THREE.SpotLightHelper, 'cyan')
 
     const distFactor = 7
 
