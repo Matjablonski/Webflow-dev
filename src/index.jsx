@@ -7,7 +7,7 @@ function App() {
 
     return (
         <div id="canvas-container">
-            <Canvas shadows camera={{ position: [0, 6, 14], fov: 30 }}>
+            <Canvas shadows camera={{ position: [0, 0, 12], fov: 30 }}>
                 <Experience />
             </Canvas>
         </div>
@@ -22,4 +22,3 @@ render.render(
         <App />
     </React.StrictMode>
 )
-// document.body.style.backgroundColor = 'yellow'

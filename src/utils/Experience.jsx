@@ -1,23 +1,25 @@
 import * as THREE from 'three'
+import { Vector3 } from 'three'
 import React from 'react'
 import { useRef, useEffect, useState, useMemo } from "react"
+import gsap from 'gsap'
 import { useFrame, useThree } from '@react-three/fiber'
-import { Html, CameraControls, AccumulativeShadows, Environment, Lightformer, RandomizedLight, Float } from "@react-three/drei"
+import { Html, CameraControls, AccumulativeShadows, Environment, Lightformer, RandomizedLight, Float, SpotLightHelper } from "@react-three/drei"
 import { LayerMaterial, Color, Depth } from 'lamina'
-import { EffectComposer, Noise } from '@react-three/postprocessing'
-import { BlendFunction } from 'postprocessing'
 import { useControls } from 'leva'
+import { EffectComposer, Bloom, ToneMapping } from '@react-three/postprocessing'
+import { ToneMappingMode } from 'postprocessing'
 
 import Model from "./Model"
 
 export default function Experience() {
 
-    // const { position } = useControls({
-    //     position: {
-    //         value: { x: 0.15, y: 0.2, z: 2.2 },
-    //         step: 0.05
-    //     }
-    // })
+    const { position } = useControls({
+        position: {
+            value: { x: 0, y: 2, z: 0 },
+            step: 0.05
+        }
+    })
 
     const [degraded, degrade] = useState(false)
     const [hidden, set] = useState()
@@ -26,48 +28,169 @@ export default function Experience() {
     const btn = document.querySelector('.btn')
     const { gl } = useThree()
 
+    const wheels = useRef()
+    const lights = useRef()
+    const rlights = useRef()
+    const roof = useRef()
+    const light = useRef()
+    useHelper(light, SpotLightHelper, 'cyan')
+
+    const distFactor = 7
+
     let status = false
     let camera = useThree((state) => state.camera)
+    let scene = useThree((state) => state.scene)
 
-    useEffect((state) => {
+    const wheelsPosition = [ 2.5, 1, 0 ]
+    let tips, rotateScene
 
-        cameraControl.current.disconnect()
+    useEffect(() => {
 
+        const spotLight = light.current;
+        const targetPosition = [0, 0, 4]; // Update with the desired target position
+        spotLight.target.position.set(...targetPosition);
+
+        // Animate scene
+        let cam = gsap.timeline({ 
+            repeat: -1, 
+            yoyo: true, 
+            yoyoEase: true,
+            defaults: {
+                duration: 10,
+                ease: 'power1.inOut',
+                // overwrite: true
+            }
+        })
+        cam.to(scene.position, {
+            // y: -0.2,
+            z: 2,
+        })
+        .to(scene.rotation, {
+            x: 0.1,
+            overwrite: true
+        }, '<')
+
+        // Rotate scene
+        rotateScene = gsap.timeline({
+            repeat: -1
+        })
+        rotateScene.to(scene.rotation, {
+            y: Math.PI * 2,
+            ease: 'linear',
+            duration: 160
+        })
+
+        // Show tooltips
+        const labels = document.querySelectorAll('.label > div')
+        tips = gsap.timeline({ paused: true })
+        tips.from(labels, {
+            scale: 1.5,
+            autoAlpha: 0,
+            stagger: 0.08,
+            ease: 'expo.out',
+            duration: 0.8
+        })
+
+        // Reverse cam
+        function reverseCam() {
+
+            let rev = gsap.timeline({
+                defaults: {
+                    duration: 1.2,
+                    ease: 'expo.out'
+                },
+                onComplete: () => cam.revert()
+            })
+            rev.to(scene.position, {
+                z: 0
+            })
+            .to(scene.rotation, {
+                x: 0
+            }, '<')
+
+            return rev
+
+        }
+
+        // Toggle camera controls
         btn.addEventListener('click', () => {
 
-            // let p = camera.position.clone()
-            // cameraControl.current.reset()
-            // cameraControl.current.disconnect()
-            if ( status === false ) {
+            if ( status === !true ) {
+                document.body.style.cursor = 'grab'
+                tl.play()
+                tips.play()
+                rotateScene.pause()
+                cam.pause()
+                reverseCam()
+                cameraControl.current.enabled = true
                 cameraControl.current.connect( gl.domElement )
                 status = true
-                return
-            } else if ( status === true ) {
+            } else {
+                document.body.style.cursor = 'default'
+                tl.reverse()
+                tips.reverse()
+                rotateScene.play()
                 cameraControl.current.disconnect()
+                cameraControl.current.setPosition( 0, 0, 12, true )
+                cameraControl.current.addEventListener('rest', disconnect)
                 status = false
-                return
             }
-            console.log(status)
-            // cameraControl.current.enabled = true
-            // console.log('clicked')
-            // camera.position.copy(p)
 
         }, [ camera ])
 
+        let bg = document.querySelector('.switch')
+        let knob = document.querySelector('.knob')  
+        
+        function disconnect() {
+            cam.timeScale(1).play()
+            cameraControl.current.enabled = false
+            cameraControl.current.removeEventListener('rest', disconnect)
+        }
+
+        // Animate button
+        let tl = gsap.timeline({ 
+            paused: true,
+            defaults: {
+                ease: 'back.inOut',
+                duration: 0.6
+            }
+        })
+        tl.to(bg, {
+            backgroundColor: '#352EA8',
+            ease: 'power3.inOut'
+        })
+        .to(knob, {
+            xPercent: 100,
+            backgroundColor: '#ededf5'
+        }, '<')
+        .to('.switch-txt.on, .switch-txt.off', {
+            xPercent: 100,
+            stagger: 0.1,
+        }, '<')
+
+        // Cursor change
+        cameraControl.current.addEventListener( 'controlstart', function() {
+            document.body.style.cursor = 'grabbing'
+        })
+
+        cameraControl.current.addEventListener( 'controlend', function() {
+            document.body.style.cursor = 'grab'
+        })
+
+        const closeBtn = document.querySelector('.close-btn')
+        closeBtn.addEventListener('click', () => {
+            rotateScene.pause()
+            tips.play()
+            cameraControl.current.reset(true)
+        })
+
     })
-
-    // const [target] = useState(() => new THREE.Object3D())
-    // const carLight = useRef()
-    // const spotlight = useMemo(() => new THREE.SpotLight('#fff'), [])
-    // useHelper(carLight, THREE.SpotLightHelper, 'yellow')
-
-    // carLight.current.lookAt(0, 0, 15)
 
     return <>
 
         <CameraControls 
             ref={cameraControl} 
-            enabled={true} 
+            enabled={false} 
             smoothTime={0.45} 
             boundaryEnclosesCamera={true} 
             maxDistance={14} 
@@ -75,6 +198,8 @@ export default function Experience() {
             minPolarAngle={0.4} 
             maxPolarAngle={Math.PI * 0.5} 
         />
+
+        <ambientLight intensity={1} />
 
         <spotLight 
             position={[0, 15, 0]} 
@@ -85,44 +210,89 @@ export default function Experience() {
             shadow-bias={-0.0001} 
         />
 
-        <ambientLight intensity={0.5} />
+        <spotLight
+            position={[position.x, position.y, position.z]}
+            ref={light}
+            castShadow
+            color={'yellow'}
+            intensity={10}
+            penumbra={0.5}
+        />
 
         <mesh ref={ car } position={[0, -1, 0]}>
             <Model scale={1.6} rotation={[0, Math.PI / 5, 0]} />
-            {/* <Html 
-                position={[2.5, 1, 0]}
+            <Html 
+                key='wheels'
+                ref={wheels}
+                position={wheelsPosition}
                 wrapperClass='label'
-                distanceFactor={ 8 }
+                distanceFactor={ distFactor }
                 occlude={ car }
-                // onOcclude={set}
-                // style={{
-                //     transition: 'all 0.5s',
-                //     opacity: hidden ? 0 : 1,
-                //     transform: `scale(${hidden ? 0.5 : 1})`
-                // }}
                 center
             >
-                Wheels
+                <div 
+                    className='event'
+                    onClick={ (e) => {
+                        cameraControl.current.setLookAt( 2.25, -0.6, 3, 3, -0.6, 0, true)
+                        // rotateScene.play()
+                        tips.reverse()
+                    }}
+                ></div>
+            </Html>
+            
+            <Html 
+                key='rlights'
+                ref={rlights}
+                position={[ 2, 1.4, -2.6 ]}
+                wrapperClass='label'
+                distanceFactor={ distFactor }
+                occlude={ car }
+                center
+            >   
+                RLIGHTS
             </Html>
             <Html 
-                position={[1, 1.5, -2.5]}
+                key='lights'
+                ref={lights}
+                position={[ -2.55, 1.1, 0.4 ]}
                 wrapperClass='label'
-                distanceFactor={ 8 }
+                distanceFactor={ distFactor }
                 occlude={ car }
                 center
             >
-                Charging
+                <div 
+                    className='event'
+                    onClick={ (e) => {
+                        cameraControl.current.setLookAt( -4.5, 0.5, 2, -2.55, 0.2, 0.4, true)
+                        cameraControl.current.zoom( 0.1, true )
+                        tips.reverse()
+                    }}
+                ></div>
             </Html>
             <Html 
-                position={[-2.6, 1, -0.2]}
+                key='roof'
+                ref={roof}
+                position={[ 1, 2.3, 0 ]}
                 wrapperClass='label'
-                distanceFactor={ 8 }
+                distanceFactor={ distFactor }
                 occlude={ car }
                 center
             >
-                LED Lights
-            </Html> */}
+                <div 
+                    className='event'
+                    onClick={ (e) => {
+                        cameraControl.current.setLookAt( 8, 3, 0, 0.5, 1, -1.5, true)
+                        cameraControl.current.dolly( 2, true )
+                        tips.reverse()
+                    }}
+                ></div>
+            </Html>
         </mesh>
+
+        {/* <EffectComposer disableNormalPass>
+            <Bloom luminanceThreshold={1} intensity={2} mipmapBlur />
+            <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
+        </EffectComposer> */}
 
         <AccumulativeShadows position={[0, -1, 0]} frames={100} alphaTest={0.8} scale={10}>
             <RandomizedLight amount={8} radius={8} ambient={0.5} position={[1, 5, -1]} />
@@ -132,9 +302,8 @@ export default function Experience() {
             <Lightformers />
         </Environment>
 
-        <CameraRig />
-
     </>
+
 }
 
 function Lightformers({ positions = [2, 0, 2, 0, 2, 0, 2, 0] }) {
@@ -170,12 +339,3 @@ function Lightformers({ positions = [2, 0, 2, 0, 2, 0, 2, 0] }) {
       </>
     )
 }
-
-function CameraRig({ v = new THREE.Vector3() }) {
-    return useFrame((state) => {
-        const t = state.clock.elapsedTime
-        state.camera.position.lerp(v.set(Math.sin(t / 30), Math.sin(t / 5) * 0.5, 12 + Math.cos(t / 5) * 2), 0.04)
-        state.scene.rotation.y += 0.0003
-        state.camera.lookAt(0, 0, 0)
-    })
-  }
