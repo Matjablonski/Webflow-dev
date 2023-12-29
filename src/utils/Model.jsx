@@ -21,7 +21,7 @@ export default function Model(props) {
     applyProps(materials.PANARAMA, { ior: 0.15, roughness: 0, clearcoat: 0.1, clearcoatRoughness: 0.1 })
     applyProps(materials.Koles_mat_Spec, { envMapIntensity: 3, roughness: 0.4, metalness: 1 })
     applyProps(materials.Mirrors_color, { envMapIntensity: 2, roughness: 0.3, metalness: 1 })
-    applyProps(materials.Kuzov_Main_color, { envMapIntensity: 2.5, clearcoat: 1, clearcoatRoughness: 0.5, reflectivity: 1, roughness: 0.1, metalness: 0.05, sheen: 1, specularIntensity: 0.5, color: '#adadad' })
+    applyProps(materials.Kuzov_Main_color, { envMapIntensity: 2.5, clearcoat: 1, clearcoatRoughness: 0.5, reflectivity: 1, roughness: 0.07, metalness: 0.05, sheen: 1, specularIntensity: 0.5, color: '#adadad' })
     applyProps(materials.Tire_mat_texture, { color: '#222', roughness: 0.5, specularIntensity: 0.5, roughnessMap: null, normalScale: [4, 4] })
     applyProps(materials.Back_lights_emissive_color_01, { specularIntensity: 0.5, emissiveIntensity: 5 })
     applyProps(materials.Glass_backlights, { color: '#531717', roughness: 0, clearcoat: 0.5 })

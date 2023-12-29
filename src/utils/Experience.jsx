@@ -49,75 +49,118 @@ export default function Experience() {
     let scene = useThree((state) => state.scene)
 
     const wheelsPosition = [ 2.5, 0.8, 0 ]
-    let tips, rotateScene
+    let tips, rotateScene, saved
 
-    const curve = new THREE.CatmullRomCurve3( [
-        new THREE.Vector3( - 5, 2, 0 ),
-        new THREE.Vector3( - 3.5, 0, 8 ),
-        new THREE.Vector3( - 2.25, 0.25, 6 ),
-        new THREE.Vector3( - 1.5, 0.15, 9 ),
-        new THREE.Vector3( 0, 0, 12 ),
-    ] )
-
-    const _tmp = new THREE.Vector3()
-    const animationProgress = { value: 0 }
-    const [animate, setAnimate] = useState(false);
-
-    // useFrame(({ clock, camera }) => {
-
-    //     if (animate) {
-
-    //         const zoomFactor = Math.sin(clock.getElapsedTime()) * 1.5; // Adjust as needed
-    //         // cameraControl.current.rotateTo(0, 0, 0); // Reset rotation (optional)
-    //         cameraControl.current.setPosition(0, 0, 10 + zoomFactor / 2); // Update zoom
-
-    //     }
-
-    // })
-
-    function complexTransition() {
-        const rotScene = gsap.to(
-            cameraControl.current, {
-                azimuthAngle: cameraControl.current.azimuthAngle - 360 * THREE.MathUtils.DEG2RAD,
-                duration: 160,
-                ease: 'linear',
-                paused: true,
-                repeat: -1
-            });
-        const zoomScene = gsap.to(
-            cameraControl.current, {
-                distance: cameraControl.current.distance - 2,
-                duration: 10,
-                ease: 'power1.inOut',
-                paused: true,
-                yoyo: true,
-                yoyoEase: true,
-                repeat: -1
-            });
+    // Exclusive control for user dragging
+    let userDragging = false;
+    let disableAutoRotate = false;
     
-        cameraControl.current.enabled = true;
-        rotScene.play( 0 )
-        zoomScene.play( 0 )
-    }
-
     useEffect(() => {
 
-        // cameraControl.current.rotateTo( Math.PI / 2, Math.PI / 4 )
+        cameraControl.current.disconnect()
 
-        // GSAP timeline for rotating the camera
-        // let sceneRotation = gsap.timeline({ repeat: -1, ease: 'power2.inOut' });
-        // sceneRotation.to({}, {
-        //     duration: 4,
-        //     onUpdate: (progress) => {
-        //         // Manually update the camera rotation during the GSAP animation
-        //         cameraControl.current.rotateTo(0, progress * Math.PI * 2, 0);
-        //     },
-        // });
+        // Scene rotation
+        const hotAnimation = gsap.timeline({ 
+            paused: false,
+            defaults: {
+                repeat: -1
+            }
+        })
+        hotAnimation.to(cameraControl.current, {
+            azimuthAngle: cameraControl.current.azimuthAngle - 360 * THREE.MathUtils.DEG2RAD,
+            duration: 150,
+            ease: 'linear',
+            delay: 1
+        })
+        .to(cameraControl.current, {
+            distance: cameraControl.current.distance - 1.5,
+            polarAngle: cameraControl.current.polarAngle - 6 * THREE.MathUtils.DEG2RAD,
+            duration: 10,
+            ease: 'power1.inOut',
+            yoyo: true,
+            yoyoEase: true,
+        }, 0);
+
+        const onRest = () => {
+
+            cameraControl.current.removeEventListener( 'rest', onRest );
+            // cameraControl.current.dolly(12, true)
+            hotAnimation.restart()
+            userDragging = false;
+            disableAutoRotate = false;
+        
+        }
+        
+        // cameraControl.current.addEventListener( 'controlstart', () => {
+        
+        //     console.log('dragging')
+        //     // hotAnimation.pause()
+        //     cameraControl.current.removeEventListener( 'rest', onRest );
+        //     userDragging = true;
+        //     disableAutoRotate = true;
+        
+        // })
+    
+        // cameraControl.current.addEventListener( 'controlend', () => {
+        
+        //     if ( cameraControl.current.active ) {
+        
+        //         cameraControl.current.addEventListener( 'rest', onRest );
+        
+        //     } else {
+        
+        //         onRest();
+        
+        //     }
+        
+        // })
+        
+        // cameraControl.current.addEventListener( 'transitionstart', () => {
+        
+        //     if ( userDragging ) return;
+        
+        //     disableAutoRotate = true;
+        //     cameraControl.current.addEventListener( 'rest', onRest );
+        
+        // })
+
+        // TOGGLE CAMERA CONTROLS
+        btn.addEventListener('click', () => {
+
+            if ( status === !true ) {
+                document.body.style.cursor = 'grab'
+                hotAnimation.pause()
+                buttonTl.play()
+                // cameraControl.current.reset()
+                // setAnimate((prevAnimate) => !prevAnimate)
+                tips.timeScale(1).play()
+                reverseCam()
+                cameraControl.current.enabled = true
+                cameraControl.current.connect( gl.domElement )
+                // Make interior btn active
+                document.querySelector('.btn-interior').classList.remove('inactive')
+                status = true
+            } else {
+                document.body.style.cursor = 'default'
+                // cameraControl.current.reset(true)
+                cameraControl.current.setPosition( 0, 0, 12, true )
+                cameraControl.current.addEventListener('rest', onRest)
+                // hotAnimation.invalidate().restart()
+                // cameraControl.current.reset()
+                buttonTl.reverse()
+                tips.timeScale(1).reverse()
+                cameraControl.current.disconnect()
+                // Make interior btn inactive
+                document.querySelector('.btn-interior').classList.add('inactive')
+                status = false
+            }
+
+        }, [ camera ])
+
 
         let intro = gsap.timeline({
             // onStart: () => rotateScene.play(),
             onStart: () => {
-                complexTransition()
                 // cam.play()
             }
         })
@@ -126,49 +169,80 @@ export default function Experience() {
             duration: 2,
             ease: 'power4.inOut'
         })
-        .from(camera.position, {
-            x: 2.5,
-            y: 2,
-            z: 1.5,
-            duration: 4,
-            ease: 'power4.inOut',
-            onUpdate: () => {
-                camera.lookAt(0, 0, 0)
-            }
-        }, 0.3);
-        // .fromTo(animationProgress, {
-        //     value: 0,
-        // }, {
-        //     value: 1,
-        //     duration: 4,
-        //     // ease: 'power4.inOut',
-        //     overwrite: true,
-        //     onUpdateParams: [ animationProgress ],
-        //     onUpdate( { value } ) {
+
+
+        function fly(startingPos) {
+
+            // Path animation vars
+            let curve = new THREE.CatmullRomCurve3( [
+                new THREE.Vector3( startingPos.x, startingPos.y, startingPos.z ),
+                new THREE.Vector3( 3.2, 3, 10 ),
+                new THREE.Vector3( 2.6, 2, 6 ),
+                new THREE.Vector3( 2, 1, 3.5 ),
+                new THREE.Vector3( 0.4, 0.6, -0.4 ),
+            ] )
+            let _tmp = new THREE.Vector3()
+            const animationProgress = { value: 0 }
+    
+
+            let interior = gsap.timeline({ 
+                defaults: {
+                    immediateRender: false
+                }
+            })
+            interior.fromTo(animationProgress, {
+                value: 0,
+            }, {
+                value: 1,
+                duration: 3,
+                ease: 'expo.inOut',
+                overwrite: true,
+                onUpdateParams: [ animationProgress ],
+                onUpdate( { value } ) {
+            
+                    if ( ! this.isActive() ) return;
         
-        //         // if ( ! this.isActive() ) return;
-    
-        //         curve.getPoint ( value, _tmp );
-        //         const cameraX = _tmp.x;
-        //         const cameraY = _tmp.y;
-        //         const cameraZ = _tmp.z;
-        //         const lookAtX = 0;
-        //         const lookAtY = 0;
-        //         const lookAtZ = 0;
-    
-        //         cameraControl.current.setLookAt(
-        //             cameraX,
-        //             cameraY,
-        //             cameraZ,
-        //             lookAtX,
-        //             lookAtY,
-        //             lookAtZ,
-        //             false, // IMPORTANT! disable cameraControls's transition and leave it to gsap.
-        //         );
-    
-        //     },
-        //     onComplete: () => console.log('complete!')
-        // }, 0.2)
+                    curve.getPoint ( value, _tmp );
+                    let cameraX = _tmp.x;
+                    let cameraY = _tmp.y;
+                    let cameraZ = _tmp.z;
+                    const lookAtX = 0;
+                    const lookAtY = 0.4;
+                    const lookAtZ = 0;
+        
+                    cameraControl.current.setPosition(
+                        cameraX,
+                        cameraY,
+                        cameraZ,
+                        true, // IMPORTANT! disable cameraControls's transition and leave it to gsap.
+                    );
+                    cameraControl.current.zoom( -0.0021, true )
+
+                    setTimeout(() => {
+                        cameraControl.current.setTarget(
+                            lookAtX,
+                            lookAtY,
+                            lookAtZ,
+                            true, // IMPORTANT! disable cameraControls's transition and leave it to gsap.
+                        );
+                    }, 2300)
+        
+                },
+                onStart() {
+
+                    cameraControl.enabled = false;
+        
+                },
+                onComplete() {
+        
+                    cameraControl.enabled = true;
+        
+                },
+            })
+
+            return fly
+
+        }
         
 
         // const spotLight = light.current;
@@ -239,52 +313,25 @@ export default function Experience() {
 
         }
 
-        // Toggle camera controls
-        btn.addEventListener('click', () => {
-
-            if ( status === !true ) {
-                document.body.style.cursor = 'grab'
-                tl.play()
-                cameraControl.current.reset()
-                // setAnimate((prevAnimate) => !prevAnimate)
-                tips.timeScale(1).play()
-                // rotateScene.pause()
-                cam.pause()
-                reverseCam()
-                cameraControl.current.enabled = true
-                cameraControl.current.connect( gl.domElement )
-                status = true
-            } else {
-                document.body.style.cursor = 'default'
-                tl.reverse()
-                tips.timeScale(1).reverse()
-                // rotateScene.play()
-                cameraControl.current.disconnect()
-                cameraControl.current.setPosition( 0, 0, 12, true )
-                cameraControl.current.addEventListener('rest', disconnect)
-                status = false
-            }
-
-        }, [ camera ])
 
         let bg = document.querySelector('.switch')
         let knob = document.querySelector('.knob')  
         
         function disconnect() {
             cam.timeScale(1).play()
-            cameraControl.current.enabled = false
+            // cameraControl.current.enabled = false
             cameraControl.current.removeEventListener('rest', disconnect)
         }
 
         // Animate button
-        let tl = gsap.timeline({ 
+        let buttonTl = gsap.timeline({ 
             paused: true,
             defaults: {
                 ease: 'back.inOut',
                 duration: 0.6
             }
         })
-        tl.to(bg, {
+        buttonTl.to(bg, {
             backgroundColor: '#2E2E2E',
             ease: 'power3.inOut'
         })
@@ -312,21 +359,26 @@ export default function Experience() {
             showText.timeScale(1.5).reverse()
             // rotateScene.pause()
             tips.play()
+            cameraControl.current.setTarget(0, 0, 0, true)
             cameraControl.current.reset(true)
             cameraControl.current.connect( gl.domElement )
         })
 
         const interiorBtn = document.querySelector('.btn-interior')
         interiorBtn.addEventListener('click', () => {
+            cameraControl.current.saveState()
             hideCameraBtn.play()
-            cameraControl.current.setLookAt( 0.3, 0.7, -0.4, 0, 0.5, 0, true)
-            cameraControl.current.zoom( -0.8, true )
+            let startingPos = cameraControl.current.getPosition()
+            fly(startingPos)
+            // console.log(typeof startingPos.x)
+            // interior.invalidate().restart()
+            // cameraControl.current.setLookAt( 0.3, 0.7, -0.4, 0, 0.5, 0, true)
             tips.timeScale(2).reverse()
         })
 
-        return () => {
-            sceneRotation.kill();
-        };
+        // return () => {
+        //     sceneRotation.kill();
+        // };
 
     }, [])
 
@@ -334,8 +386,10 @@ export default function Experience() {
 
         <CameraControls 
             ref={cameraControl} 
-            enabled={false} 
-            smoothTime={0.45} 
+            enabled={true} 
+            smoothTime={0.25} 
+            restThreshold={0.0050}
+            truckSpeed={0}
             boundaryEnclosesCamera={true} 
             maxDistance={14} 
             minDistance={6} 
@@ -430,6 +484,8 @@ export default function Experience() {
                 <div 
                     className='event'
                     onClick={ (e) => {
+                        // saved = cameraControl.current.getPosition()
+                        cameraControl.current.saveState()
                         // gsap.to(scene.rotation, { y: 0, ease: 'power4.out', duration: 0.1 })
                         cameraControl.current.disconnect()
                         // cameraControl.current.maxAzimuthAngle = Math.PI / 0.42
@@ -467,6 +523,7 @@ export default function Experience() {
                 <div 
                     className='event'
                     onClick={ (e) => {
+                        cameraControl.current.saveState()
                         hideCameraBtn.play()
                         cameraControl.current.setLookAt( -3, 0.8, 2, -2.55, 0.2, 0.4, true)
                         cameraControl.current.zoom( -0.5, true )
@@ -487,6 +544,7 @@ export default function Experience() {
                 <div 
                     className='event'
                     onClick={ (e) => {
+                        cameraControl.current.saveState()
                         hideCameraBtn.play()
                         cameraControl.current.setLookAt( 8, 3, 0, 0.5, 1, -1.5, true)
                         cameraControl.current.dolly( 2, true )
