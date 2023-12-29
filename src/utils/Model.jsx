@@ -6,12 +6,14 @@ Source: https://sketchfab.com/3d-models/mini-hatch-cooper-s-52b5107fe51b45a2bdd1
 Title: Mini Hatch Cooper S
 */
 
-import React, { useLayoutEffect } from "react";
+import React, { useLayoutEffect, useRef, useEffect } from "react";
 import { Canvas, applyProps, useFrame } from '@react-three/fiber'
 import { useGLTF } from "@react-three/drei";
+import gsap from "gsap";
 
 export default function Model(props) {
-  const { scene, nodes, materials } = useGLTF("https://dl.dropbox.com/scl/fi/tj9j1jhf6ovvedv7ppbno/mini_hatch_cooper_s.glb?rlkey=9bgxeez30p7sa9b2sf9pcl7ky");
+  const frontTire = useRef()
+  const { scene, nodes, materials } = useGLTF("https://dl.dropbox.com/scl/fi/zhqsz827pt3chgrn1xvps/mini_hatch_cooper_s_NEW.glb?rlkey=n20hm5469qwanu8s7rzmaplfv");
   useLayoutEffect(() => {
     Object.values(nodes).forEach((node) => node.isMesh && (node.receiveShadow = node.castShadow = true))
     applyProps(materials.Specular_Railing, { metalness: 0.9, roughness: 0.1, roughnessMap: null, normalScale: [4, 4], toneMapped: false, specularIntensity: 0.5 })
@@ -19,1266 +21,1510 @@ export default function Model(props) {
     applyProps(materials.PANARAMA, { ior: 0.15, roughness: 0, clearcoat: 0.1, clearcoatRoughness: 0.1 })
     applyProps(materials.Koles_mat_Spec, { envMapIntensity: 3, roughness: 0.4, metalness: 1 })
     applyProps(materials.Mirrors_color, { envMapIntensity: 2, roughness: 0.3, metalness: 1 })
-    applyProps(materials.Kuzov_Main_color, { envMapIntensity: 3, clearcoat: 1, reflectivity: 1, roughness: 0.05, metalness: 0, sheen: 1, specularIntensity: 0.5, color: '#adadad' })
+    applyProps(materials.Kuzov_Main_color, { envMapIntensity: 2.5, clearcoat: 1, clearcoatRoughness: 0.5, reflectivity: 1, roughness: 0.1, metalness: 0.05, sheen: 1, specularIntensity: 0.5, color: '#adadad' })
     applyProps(materials.Tire_mat_texture, { color: '#222', roughness: 0.5, specularIntensity: 0.5, roughnessMap: null, normalScale: [4, 4] })
     applyProps(materials.Back_lights_emissive_color_01, { specularIntensity: 0.5, emissiveIntensity: 5 })
     applyProps(materials.Glass_backlights, { color: '#531717', roughness: 0, clearcoat: 0.5 })
     applyProps(materials.Kuzov_black_color, { color: 'black', roughness: 0.2, clearcoat: 0.1 })
     applyProps(materials.Glass_front_lights, { color: 'white', toneMapped: false, roughness: 0.5, clearcoat: 0.5, thickness: 0.5, specularIntensity: 1 })
     applyProps(materials.Front_lights_Spec, { color: 'white', emissiveIntensity: 5, toneMapped: false })
-    applyProps(materials.Kuzov_potolok, { envMapIntensity: 3, roughness: 0.2, metalness: 0 })
+    applyProps(materials.Kuzov_potolok, { color: '#adadad', envMapIntensity: 2, roughness: 0.2, metalness: 0, reflectivity: 1, specularIntensity: 1 })
   }, [nodes, materials])
 
+  useEffect(() => {
+
+    // COLORS LIBRARY
+    let silverColor = { r: 0.41789, g: 0.41789, b: 0.41789 }
+    let blueColor = { r: 0.028426039499072558, g: 0.1844749944900301, b: 0.514917665367466 }
+    let yellowColor = { r: 0.85499, g: 0.50888, b: 0.00335 }
+    let redColor = { r: 0.53328, g: 0.00402, b: 0.01521 }
+    let greenColor = { r: 0.00972, g: 0.13014, b: 0.02843 }
+    let whiteColor = { r: 1, g: 1, b: 1 }
+    let blackColor = { r: 0.00402, g: 0.00402, b: 0.00402 }
+    let purpleColor = { r: 0.18782, g: 0.18782, b: 0.18782 }
+
+    // TIMELINE VARS
+    const ease = 'power4.out'
+    const duration = 1
+
+    const colorBtns = document.querySelectorAll('.color-btn')
+    colorBtns.forEach( btn => {
+
+        btn.addEventListener('click', () => {
+
+            // Remove all active states
+            colorBtns.forEach( btn => {
+                btn.classList.remove('active')
+            })
+
+            // Active button
+            btn.classList.add('active')
+
+            // Change color
+            let paint = eval( btn.getAttribute('color-paint') )
+            let roof = eval( btn.getAttribute('color-roof') )    
+            
+            let tl = gsap.timeline({
+                defaults: {
+                    duration: duration,
+                    ease: ease
+                }
+            })
+            tl.to(materials.Kuzov_Main_color.color, {
+                r: paint.r,
+                g: paint.g,
+                b: paint.b,
+            })
+            tl.to(materials.Kuzov_potolok.color, {
+                r: roof.r,
+                g: roof.g,
+                b: roof.b,
+            }, '<')
+
+        })
+
+    })
+
+  })
+
   return (
-    <group {...props} object={scene} dispose={null}>
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object052_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object051_1.geometry}
-        material={materials.Glass_front_lights}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane026_1.geometry}
-        material={materials.Specular_Railing}
-        position={[0.616, 0.834, 0.854]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object011_1.geometry}
-        material={materials.Specular_Railing}
-        position={[-1.232, 0.952, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane021_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane023_1.geometry}
-        material={materials.Kuzov_potolok}
-        position={[-0.254, 1.003, 0.851]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane022_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-0.206, 0.872, 0.824]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object032_1.geometry}
-        material={materials.Glass_backlights_white__1}
-        position={[-0.587, 0.784, 0.831]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object038_1.geometry}
-        material={materials.Glass_backlights}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane005_1.geometry}
-        material={materials.Back_Bamper}
-        position={[0.268, 0.222, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object049_1.geometry}
-        material={materials.Front_lights_Spec}
-        position={[0, 0.757, 0.614]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Line002_1.geometry}
-        material={materials.front_lights_mat_2_vnytri_color}
-        position={[0, 0.757, 0.668]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Line004_1.geometry}
-        material={materials.front_lights_mat_2_vnytri_color}
-        position={[0, 0.757, 0.614]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object048_1.geometry}
-        material={materials.front_lights_mat_2_vnytri_color}
-        position={[0, 0.757, 0.614]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object004_1.geometry}
-        material={materials.Kuzov_Main_color}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object045_1.geometry}
-        material={materials.front_lights_mat_2_vnytri_color}
-        position={[0, 0.757, 0.668]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane024_1.geometry}
-        material={materials.Mirrors_color}
-        position={[-0.076, 0.988, 0.861]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object019_1.geometry}
-        material={materials.Back_Bamper}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane003_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-0.367, 0.978, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object036_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane004_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[1.705, 1.131, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane025_1.geometry}
-        material={materials.Bottom_color}
-        position={[1.972, 0.825, 0.643]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object016_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[0.608, 1.418, 0.301]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object046_1.geometry}
-        material={materials.front_lights_mat_2_vnytri_color}
-        position={[0, 0.757, 0.668]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object039_1.geometry}
-        material={materials.Glass_backlights_white__1}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object037_1.geometry}
-        material={materials.Specular_Railing}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object050_1.geometry}
-        material={materials.front_lights_mat_2_vnytri_color}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object047_1.geometry}
-        material={materials.front_lights_mat_2_vnytri_color}
-        position={[0, 0.757, 0.668]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object035_1.geometry}
-        material={materials.Specular_Railing}
-        position={[1.833, 0.992, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object044_1.geometry}
-        material={materials.Specular_Railing}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object022_1.geometry}
-        material={materials.Back_Bamper}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane019_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.672, 0.591, 0.376]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object015_1.geometry}
-        material={materials.Specular_Railing}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object034_1.geometry}
-        material={materials.Specular_Railing}
-        position={[-0.587, 0.784, 0.831]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object012_1.geometry}
-        material={materials.Specular_Railing}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object008_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[0.771, 1.311, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object023_1.geometry}
-        material={materials.Back_Bamper}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object005_1.geometry}
-        material={materials.Kuzov_Main_color}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object010_1.geometry}
-        material={materials.Specular_Railing}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object001_1.geometry}
-        material={materials.Kuzov_Main_color}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object002_1.geometry}
-        material={materials.Kuzov_Main_color}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object006_1.geometry}
-        material={materials.Kuzov_Main_color}
-        position={[1.926, 0.52, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane029_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-0.263, 0.986, 0.711]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Cylinder010_1.geometry}
-        material={materials.front_lights_mat_2_vnytri_color}
-        position={[1.985, 0.447, 0.725]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object194_1.geometry}
-        material={materials.Salon_black}
-        position={[0.712, 1.064, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object195_1.geometry}
-        material={materials.Kuzov_Main_color}
-        position={[-1.561, 0.466, 0.685]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object196_1.geometry}
-        material={materials.front_lights_mat_2_vnytri_color}
-        position={[1.985, 0.447, 0.725]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Cylinder009_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.561, 0.466, 0.685]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane028_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.657, 0.411, 0.156]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Tube001_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[0, 0.282, 0.419]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object186_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[0, 0.282, 0.419]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes._3040_4_1S_M_902B_L_002_1.geometry}
-        material={materials.Tire_mat_texture}
-        position={[1.5, 0.299, 0.744]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Cylinder005_1.geometry}
-        material={materials.Koleso_mat_Base}
-        position={[-1.041, 0.283, 0.792]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Cylinder006_1.geometry}
-        material={materials.Koleso_mat_Base}
-        position={[1.446, 0.283, 0.792]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object185_1.geometry}
-        material={materials.Baked_Emblema}
-        position={[1.505, 0.298, 0.794]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object183_1.geometry}
-        material={materials.Baked_Emblema}
-        position={[-0.988, 0.298, 0.794]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Box002_1.geometry}
-        material={materials.Koleso_mat_support}
-        position={[-1.093, 0.303, 0.77]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes._3040_4_1S_M_902B_L_1_1.geometry}
-        material={materials.Tire_mat_texture}
-        position={[-0.988, 0.299, 0.744]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object031_1.geometry}
-        material={materials.Koleso_tormoz_disk_mat}
-        position={[-0.979, 0.296, 0.762]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object180_1.geometry}
-        material={materials.Koleso_mat_support}
-        position={[1.397, 0.286, 0.759]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object182_1.geometry}
-        material={materials.Koleso_tormoz_disk_mat}
-        position={[1.504, 0.298, 0.769]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object003_1.geometry}
-        material={materials.Kuzov_Main_color}
-        position={[-1.491, 0.43, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object197_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Cylinder007_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[1.41, 1.411, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane041_1.geometry}
-        material={materials.Salon_black}
-        position={[1.647, 1.055, 0.234]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane042_1.geometry}
-        material={materials.Salon_black}
-        position={[0, 0.852, 0.264]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Line007_1.geometry}
-        material={materials.Salon_black}
-        position={[0.22, 0.808, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object218_1.geometry}
-        material={materials.Salon_black}
-        position={[0.783, 1.115, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object220_1.geometry}
-        material={materials.Salon_black}
-        position={[-0.357, 1.005, -0.314]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object222_1.geometry}
-        material={materials.Salon_black}
-        position={[0, 0.852, 0.264]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object224_1.geometry}
-        material={materials.Bottom_color}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object226_1.geometry}
-        material={materials.Bottom_color}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object228_1.geometry}
-        material={materials.Bottom_color}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object229_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object230_1.geometry}
-        material={materials.Bottom_color}
-        position={[0.268, 0.222, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object231_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object232_1.geometry}
-        material={materials.Bottom_color}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object233_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object235_1.geometry}
-        material={materials.Bottom_color}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object237_1.geometry}
-        material={materials.Bottom_color}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object239_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[0.608, 1.418, 0.301]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object240_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[1.705, 1.131, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane044_1.geometry}
-        material={materials.Salon_black}
-        position={[-0.248, 0.247, -0.395]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane045_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.001, 0.93, 0.224]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane046_1.geometry}
-        material={materials.Back_Bamper}
-        position={[-1.465, 0.145, 0.553]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Cylinder015_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[2, 0.846, 0.07]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Box005_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[1.998, 0.843, 0.07]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane047_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[1.848, 1.046, 0.291]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.e1933_2K_M_166C_R_1_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-0.621, 0.927, -0.386]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Line008_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.743, 0.481, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object241_1.geometry}
-        material={materials.Baked_Nomera}
-        position={[-1.749, 0.481, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object244_1.geometry}
-        material={materials.Front_lights_Spec}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      {/* <mesh
-        castShadow
-        receiveShadow
-        position={[-1.232, 0.852, 0.736]}
-        scale={0.05}
-      >
-        <sphereGeometry args={[ 1, 10, 10 ]} />
-        <meshStandardMaterial color={"yellow"} emissive={'white'} emissiveIntensity={1}/>
-      </mesh> */}
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object245_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane034_1.geometry}
-        material={materials.Baked_Torpeda_map}
-        position={[-0.357, 1.005, -0.314]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane033_1.geometry}
-        material={materials.baked_Tonel}
-        position={[0.444, 0.854, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Box003_1.geometry}
-        material={materials.baked_front_seat}
-        position={[0.846, 0.88, 0.474]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Cylinder014_1.geometry}
-        material={materials.Baked_Back_sideniya}
-        position={[1.478, 1.026, 0.473]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane040_1.geometry}
-        material={materials.baked_Back_Door}
-        position={[1.222, 0.721, 0.571]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object198_1.geometry}
-        material={materials.Baked_Dveri_obshivki}
-        position={[0.173, 0.52, 0.659]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object247_1.geometry}
-        material={materials.baked__Baked_Potolok}
-        position={[0.783, 1.115, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object248_1.geometry}
-        material={materials.Salon_black}
-        position={[0.173, 0.52, 0.659]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object249_1.geometry}
-        material={materials.Diffuse_Holes}
-        position={[-0.357, 1.005, -0.314]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object250_1.geometry}
-        material={materials.Specular_Railing}
-        position={[0.846, 0.88, 0.474]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.rubber_01_01_1.geometry}
-        material={materials.Specular_Railing}
-        position={[2.001, 0.669, -0.404]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object268_1.geometry}
-        material={materials.M_Logo_Rot}
-        position={[2.001, 0.669, -0.404]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Box002__1__1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[0, 0.642, 0.169]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object246_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object269_1.geometry}
-        material={materials.Specular_Railing}
-        position={[1.975, 0.281, -0.053]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object270_1.geometry}
-        material={materials.Bottom_color}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object246__1__1.geometry}
-        material={materials.Kuzov_potolok}
-        position={[1.663, 0, 0.261]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object247__1__1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[1.663, 0, 0.261]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object248__1__1.geometry}
-        material={materials.PANARAMA}
-        position={[0.979, 1.403, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Tube001__1__1.geometry}
-        material={materials.Specular_Railing}
-        position={[1.333, 0.823, -0.817]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object265_1.geometry}
-        material={materials["02___Default"]}
-        position={[8.744, 0.355, 0.503]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object266_1.geometry}
-        material={materials.Back_Bamper}
-        position={[8.744, 0.355, 0.503]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane049_1.geometry}
-        material={materials.Kuzov_potolok}
-        position={[1.639, 1.346, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object271_1.geometry}
-        material={materials.Bottom_color}
-        position={[2.044, 0.427, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes._shell_146_1.geometry}
-        material={materials.Specular_Railing}
-        position={[-0.909, 0.285, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Cylinder016_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[2.01, 0.892, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object185__1__1.geometry}
-        material={materials.Baked_Emblema}
-        position={[1.505, 0.298, 0.811]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object183__1__1.geometry}
-        material={materials.Baked_Emblema}
-        position={[-0.988, 0.298, 0.811]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.LP_Potolok_1.geometry}
-        material={materials.Baked_Potolok}
-        position={[0.783, 1.115, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane001_1.geometry}
-        material={materials.Salon_black}
-        position={[0.842, 1.372, -0.139]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object272_1.geometry}
-        material={materials.PANARAMA}
-        position={[0.979, 1.372, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object274_1.geometry}
-        material={materials.M_Logo_Rot}
-        position={[-1.696, 0.601, 0.325]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object275_1.geometry}
-        material={materials.Back_Bamper}
-        position={[-1.693, 0.601, 0.325]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object276_1.geometry}
-        material={materials.Specular_Railing}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object277_1.geometry}
-        material={materials.Kuzov_potolok}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object278_1.geometry}
-        material={materials.M_Logo_Rot}
-        position={[-0.558, 0.779, -0.824]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object279_1.geometry}
-        material={materials.Specular_Railing}
-        position={[-0.557, 0.778, -0.821]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object280_1.geometry}
-        material={materials.M_Logo_Rot}
-        position={[-0.557, 0.779, 0.824]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object281_1.geometry}
-        material={materials.Specular_Railing}
-        position={[-0.557, 0.778, 0.822]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object282_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object270__1__1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.701, 0.651, 0.008]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane001__1__1.geometry}
-        material={materials.Glass_front_lights}
-        position={[-0.422, 0.997, 0.337]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Cylinder017_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.634, 0.735, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes._shell_147_1.geometry}
-        material={materials.Specular_Railing}
-        position={[0.872, -0.88, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object283_1.geometry}
-        material={materials.Specular_Railing}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object284_1.geometry}
-        material={materials.Specular_Railing}
-        position={[0.173, 0.52, 0.659]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object285_1.geometry}
-        material={materials.Specular_Railing}
-        position={[-0.357, 1.005, -0.314]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object286_1.geometry}
-        material={materials.Specular_Railing}
-        position={[-0.357, 1.005, -0.314]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object287_1.geometry}
-        material={materials.Specular_Railing}
-        position={[-0.357, 1.005, -0.314]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object288_1.geometry}
-        material={materials.Specular_Railing}
-        position={[0.444, 0.854, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object289_1.geometry}
-        material={materials.Specular_Railing}
-        position={[-0.357, 1.005, -0.314]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object290_1.geometry}
-        material={materials.Specular_Railing}
-        position={[0.444, 0.854, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object291_1.geometry}
-        material={materials.Specular_Railing}
-        position={[-0.357, 1.005, -0.314]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Box002__2__1.geometry}
-        material={materials.Salon_black}
-        position={[-0.276, 1.23, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane001__2__1.geometry}
-        material={materials.Mirrors_color}
-        position={[-0.203, 1.199, 0.001]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane048_1.geometry}
-        material={materials.Back_lights_emissive_color_01}
-        position={[0, 0.771, 0.596]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object243_1.geometry}
-        material={materials.Back_lights_emissive_color_01}
-        position={[0, 0.771, 0.596]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object053_1.geometry}
-        material={materials.Glass_Windows}
-        position={[0.608, 1.418, 0.301]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object054_1.geometry}
-        material={materials.Glass_Windows}
-        position={[0.608, 1.418, 0.301]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object055_1.geometry}
-        material={materials.Glass_Windows}
-        position={[0.608, 1.418, 0.301]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object056_1.geometry}
-        material={materials.Glass_Windows}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Line012_1.geometry}
-        material={materials.Back_Bamper}
-        position={[2.026, 0.349, 0.503]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane001__3__1.geometry}
-        material={materials.Bottom_color}
-        position={[1.672, 0.267, 0.473]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Cylinder001_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[1.975, 0.281, -0.053]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane001__4__1.geometry}
-        material={materials.Kuzov_Main_color}
-        position={[-1.232, 0.952, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object250__1__1.geometry}
-        material={materials.Kuzov_Main_color}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane050_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.492, 0.807, 0.001]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object251_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.232, 0.952, 0.236]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object254_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.673, 0.382, -0.547]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane054_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.673, 0.382, -0.547]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object255_1.geometry}
-        material={materials.Kuzov_Main_color}
-        position={[-1.673, 0.382, -0.547]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object256_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.673, 0.382, -0.547]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object257_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.673, 0.382, -0.547]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object258_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.673, 0.382, -0.547]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object260_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.673, 0.382, -0.547]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object259_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.673, 0.382, -0.547]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane055_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.699, 0.284, 0.175]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Line011_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.715, 0.583, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object262_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[-1.673, 0.382, -0.547]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Line013_1.geometry}
-        material={materials.Kuzov_black_color}
-        position={[2.098, 0.437, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object001__1__1.geometry}
-        material={materials.Koles_mat_Spec}
-        position={[-0.988, 0.299, -0.837]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane001__5__1.geometry}
-        material={materials.Koleso_mat_Base}
-        position={[-0.988, 0.298, 0]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Object267_1.geometry}
-        material={materials.Koles_mat_Spec}
-        position={[1.505, 0.299, -0.837]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane057_1.geometry}
-        material={materials.Koleso_mat_Base}
-        position={[1.506, 0.298, 0]}
-      />
+    <group {...props} dispose={null}>
+      <group>
+        <group rotation={[-Math.PI / 2, 0, 0]}>
+          <group rotation={[Math.PI / 2, 0, 0]}>
+            <group>
+              <group>
+                <group position={[1.5, 0.299, 0.744]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes._3040_4_1S_M_902B_L_002001.geometry}
+                    material={materials.Tire_mat_texture}
+                  />
+                </group>
+                <group position={[-0.909, 0.285, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes._shell_146001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[0.872, -0.88, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes._shell_147001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[-1.093, 0.303, 0.77]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Box002001.geometry}
+                    material={materials.Koleso_mat_support}
+                  />
+                </group>
+                <group position={[0, 0.642, 0.169]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Box002__1_001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-0.276, 1.23, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Box002__2_001.geometry}
+                    material={materials.Salon_black}
+                  />
+                </group>
+                <group position={[0.846, 0.88, 0.474]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Box003001.geometry}
+                    material={materials.baked_front_seat}
+                  />
+                </group>
+                <group position={[1.998, 0.843, 0.07]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Box005001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[1.975, 0.281, -0.053]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Cylinder001001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-1.041, 0.283, 0.792]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Cylinder005001.geometry}
+                    material={materials.Koleso_mat_Base}
+                  />
+                </group>
+                <group position={[1.446, 0.283, 0.792]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Cylinder006001.geometry}
+                    material={materials.Koleso_mat_Base}
+                  />
+                </group>
+                <group position={[1.41, 1.411, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Cylinder007001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-1.561, 0.466, 0.685]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Cylinder009001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[1.985, 0.447, 0.725]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Cylinder010001.geometry}
+                    material={materials.front_lights_mat_2_vnytri_color}
+                  />
+                </group>
+                <group position={[1.478, 1.026, 0.473]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Cylinder014001.geometry}
+                    material={materials.Baked_Back_sideniya}
+                  />
+                </group>
+                <group position={[2, 0.846, 0.07]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Cylinder015001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[2.01, 0.892, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Cylinder016001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-1.634, 0.735, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Cylinder017001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-0.621, 0.927, -0.386]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.e1933_2K_M_166C_R_1001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[0, 0.757, 0.668]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Line002001.geometry}
+                    material={materials.front_lights_mat_2_vnytri_color}
+                  />
+                </group>
+                <group position={[0, 0.757, 0.614]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Line004001.geometry}
+                    material={materials.front_lights_mat_2_vnytri_color}
+                  />
+                </group>
+                <group position={[0.22, 0.808, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Line007001.geometry}
+                    material={materials.Salon_black}
+                  />
+                </group>
+                <group position={[-1.743, 0.481, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Line008001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-1.715, 0.583, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Line011001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[2.026, 0.349, 0.503]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Line012001.geometry}
+                    material={materials.Back_Bamper}
+                  />
+                </group>
+                <group position={[2.098, 0.437, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Line013001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[0.783, 1.115, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.LP_Potolok001.geometry}
+                    material={materials.Baked_Potolok}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object001001.geometry}
+                    material={materials.Kuzov_Main_color}
+                  />
+                </group>
+                <group position={[-0.988, 0.299, -0.837]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object001__1_001.geometry}
+                    material={materials.Koles_mat_Spec}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object002001.geometry}
+                    material={materials.Kuzov_Main_color}
+                  />
+                </group>
+                <group position={[-1.491, 0.43, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object003001.geometry}
+                    material={materials.Kuzov_Main_color}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object004001.geometry}
+                    material={materials.Kuzov_Main_color}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object005001.geometry}
+                    material={materials.Kuzov_Main_color}
+                  />
+                </group>
+                <group position={[1.926, 0.52, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object006001.geometry}
+                    material={materials.Kuzov_Main_color}
+                  />
+                </group>
+                <group position={[0.771, 1.311, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object008001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object010001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object011001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object012001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object015001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[0.608, 1.418, 0.301]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object016001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object019001.geometry}
+                    material={materials.Back_Bamper}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object022001.geometry}
+                    material={materials.Back_Bamper}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object023001.geometry}
+                    material={materials.Back_Bamper}
+                  />
+                </group>
+                <group position={[-0.979, 0.296, 0.762]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object031001.geometry}
+                    material={materials.Koleso_tormoz_disk_mat}
+                  />
+                </group>
+                <group position={[-0.587, 0.784, 0.831]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object032001.geometry}
+                    material={materials.Glass_backlights_white__1}
+                  />
+                </group>
+                <group position={[-0.587, 0.784, 0.831]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object034001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[1.833, 0.992, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object035001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object036001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object037001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object038001.geometry}
+                    material={materials.Glass_backlights}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object039001.geometry}
+                    material={materials.Glass_backlights_white__1}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object044001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[0, 0.757, 0.668]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object045001.geometry}
+                    material={materials.front_lights_mat_2_vnytri_color}
+                  />
+                </group>
+                <group position={[0, 0.757, 0.668]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object046001.geometry}
+                    material={materials.front_lights_mat_2_vnytri_color}
+                  />
+                </group>
+                <group position={[0, 0.757, 0.668]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object047001.geometry}
+                    material={materials.front_lights_mat_2_vnytri_color}
+                  />
+                </group>
+                <group position={[0, 0.757, 0.614]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object048001.geometry}
+                    material={materials.front_lights_mat_2_vnytri_color}
+                  />
+                </group>
+                <group position={[0, 0.757, 0.614]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object049001.geometry}
+                    material={materials.Front_lights_Spec}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object050001.geometry}
+                    material={materials.front_lights_mat_2_vnytri_color}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object051001.geometry}
+                    material={materials.Glass_front_lights}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object052001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[0.608, 1.418, 0.301]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object053001.geometry}
+                    material={materials.Glass_Windows}
+                  />
+                </group>
+                <group position={[0.608, 1.418, 0.301]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object054001.geometry}
+                    material={materials.Glass_Windows}
+                  />
+                </group>
+                <group position={[0.608, 1.418, 0.301]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object055001.geometry}
+                    material={materials.Glass_Windows}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object056001.geometry}
+                    material={materials.Glass_Windows}
+                  />
+                </group>
+                <group position={[1.397, 0.286, 0.759]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object180001.geometry}
+                    material={materials.Koleso_mat_support}
+                  />
+                </group>
+                <group position={[1.504, 0.298, 0.769]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object182001.geometry}
+                    material={materials.Koleso_tormoz_disk_mat}
+                  />
+                </group>
+                <group position={[-0.988, 0.298, 0.794]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object183001.geometry}
+                    material={materials.Baked_Emblema}
+                  />
+                </group>
+                <group position={[1.505, 0.298, 0.794]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object185001.geometry}
+                    material={materials.Baked_Emblema}
+                  />
+                </group>
+                <group position={[1.505, 0.298, 0.811]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object185__1_001.geometry}
+                    material={materials.Baked_Emblema}
+                  />
+                </group>
+                <group position={[0, 0.282, 0.419]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object186001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[0.712, 1.064, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object194001.geometry}
+                    material={materials.Salon_black}
+                  />
+                </group>
+                <group position={[-1.561, 0.466, 0.685]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object195001.geometry}
+                    material={materials.Kuzov_Main_color}
+                  />
+                </group>
+                <group position={[1.985, 0.447, 0.725]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object196001.geometry}
+                    material={materials.front_lights_mat_2_vnytri_color}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object197001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[0.173, 0.52, 0.659]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object198001.geometry}
+                    material={materials.Baked_Dveri_obshivki}
+                  />
+                </group>
+                <group position={[0.783, 1.115, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object218001.geometry}
+                    material={materials.Salon_black}
+                  />
+                </group>
+                <group position={[-0.357, 1.005, -0.314]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object220001.geometry}
+                    material={materials.Salon_black}
+                  />
+                </group>
+                <group position={[0, 0.852, 0.264]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object222001.geometry}
+                    material={materials.Salon_black}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object224001.geometry}
+                    material={materials.Bottom_color}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object226001.geometry}
+                    material={materials.Bottom_color}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object228001.geometry}
+                    material={materials.Bottom_color}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object229001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[0.268, 0.222, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object230001.geometry}
+                    material={materials.Bottom_color}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object231001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object232001.geometry}
+                    material={materials.Bottom_color}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object233001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object235001.geometry}
+                    material={materials.Bottom_color}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object237001.geometry}
+                    material={materials.Bottom_color}
+                  />
+                </group>
+                <group position={[0.608, 1.418, 0.301]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object239001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[1.705, 1.131, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object240001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-1.749, 0.481, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object241001.geometry}
+                    material={materials.Baked_Nomera}
+                  />
+                </group>
+                <group position={[0, 0.771, 0.596]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object243001.geometry}
+                    material={materials.Back_lights_emissive_color_01}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object244001.geometry}
+                    material={materials.Front_lights_Spec}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object245001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object246001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[1.663, 0, 0.261]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object246__1_001.geometry}
+                    material={materials.Kuzov_potolok}
+                  />
+                </group>
+                <group position={[0.783, 1.115, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object247001.geometry}
+                    material={materials.baked__Baked_Potolok}
+                  />
+                </group>
+                <group position={[1.663, 0, 0.261]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object247__1_001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[0.173, 0.52, 0.659]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object248001.geometry}
+                    material={materials.Salon_black}
+                  />
+                </group>
+                <group position={[0.979, 1.403, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object248__1_001.geometry}
+                    material={materials.PANARAMA}
+                  />
+                </group>
+                <group position={[-0.357, 1.005, -0.314]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object249001.geometry}
+                    material={materials.Diffuse_Holes}
+                  />
+                </group>
+                <group position={[0.846, 0.88, 0.474]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object250001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object250__1_001.geometry}
+                    material={materials.Kuzov_Main_color}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object251001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-1.673, 0.382, -0.547]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object254001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-1.673, 0.382, -0.547]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object255001.geometry}
+                    material={materials.Kuzov_Main_color}
+                  />
+                </group>
+                <group position={[-1.673, 0.382, -0.547]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object256001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-1.673, 0.382, -0.547]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object257001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-1.673, 0.382, -0.547]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object258001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-1.673, 0.382, -0.547]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object259001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-1.673, 0.382, -0.547]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object260001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-1.673, 0.382, -0.547]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object262001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[8.744, 0.355, 0.503]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object265001.geometry}
+                    material={materials["02___Default"]}
+                  />
+                </group>
+                <group position={[8.744, 0.355, 0.503]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object266001.geometry}
+                    material={materials.Back_Bamper}
+                  />
+                </group>
+                <group position={[1.505, 0.299, -0.837]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object267001.geometry}
+                    material={materials.Koles_mat_Spec}
+                  />
+                </group>
+                <group position={[2.001, 0.669, -0.404]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object268001.geometry}
+                    material={materials.M_Logo_Rot}
+                  />
+                </group>
+                <group position={[1.975, 0.281, -0.053]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object269001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object270001.geometry}
+                    material={materials.Bottom_color}
+                  />
+                </group>
+                <group position={[-1.701, 0.651, 0.008]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object270__1_001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[2.044, 0.427, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object271001.geometry}
+                    material={materials.Bottom_color}
+                  />
+                </group>
+                <group position={[0.979, 1.372, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object272001.geometry}
+                    material={materials.PANARAMA}
+                  />
+                </group>
+                <group position={[-1.696, 0.601, 0.325]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object274001.geometry}
+                    material={materials.M_Logo_Rot}
+                  />
+                </group>
+                <group position={[-1.693, 0.601, 0.325]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object275001.geometry}
+                    material={materials.Back_Bamper}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object276001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object277001.geometry}
+                    material={materials.Kuzov_potolok}
+                  />
+                </group>
+                <group position={[-0.558, 0.779, -0.824]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object278001.geometry}
+                    material={materials.M_Logo_Rot}
+                  />
+                </group>
+                <group position={[-0.557, 0.778, -0.821]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object279001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[-0.557, 0.779, 0.824]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object280001.geometry}
+                    material={materials.M_Logo_Rot}
+                  />
+                </group>
+                <group position={[-0.557, 0.778, 0.822]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object281001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object282001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object283001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[0.173, 0.52, 0.659]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object284001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[-0.357, 1.005, -0.314]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object285001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[-0.357, 1.005, -0.314]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object286001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[-0.357, 1.005, -0.314]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object287001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[0.444, 0.854, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object288001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[-0.357, 1.005, -0.314]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object289001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[0.444, 0.854, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object290001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[-0.357, 1.005, -0.314]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Object291001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[0.842, 1.372, -0.139]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane001001.geometry}
+                    material={materials.Salon_black}
+                  />
+                </group>
+                <group position={[-0.422, 0.997, 0.337]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane001__1_001.geometry}
+                    material={materials.Glass_front_lights}
+                  />
+                </group>
+                <group position={[-0.203, 1.199, 0.001]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane001__2_001.geometry}
+                    material={materials.Mirrors_color}
+                  />
+                </group>
+                <group position={[1.672, 0.267, 0.473]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane001__3_001.geometry}
+                    material={materials.Bottom_color}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane001__4_001.geometry}
+                    material={materials.Kuzov_Main_color}
+                  />
+                </group>
+                <group ref={frontTire}>
+                    <group position={[-0.988, 0.298, 0.811]}>
+                    <mesh
+                        castShadow
+                        receiveShadow
+                        geometry={nodes.Object183__1_001.geometry}
+                        material={materials.Baked_Emblema}
+                    />
+                    </group>
+                    <group position={[-0.988, 0.299, 0.744]}>
+                    <mesh
+                        castShadow
+                        receiveShadow
+                        geometry={nodes._3040_4_1S_M_902B_L_1001.geometry}
+                        material={materials.Tire_mat_texture}
+                    />
+                    </group>
+                    <group position={[-0.988, 0.298, 0]}>
+                    <mesh
+                        castShadow
+                        receiveShadow
+                        geometry={nodes.Plane001__5_001.geometry}
+                        material={materials.Koleso_mat_Base}
+                    />
+                    </group>                
+                </group>
+                <group position={[-0.367, 0.978, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane003001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[1.705, 1.131, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane004001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[0.268, 0.222, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane005001.geometry}
+                    material={materials.Back_Bamper}
+                  />
+                </group>
+                <group position={[-1.672, 0.591, 0.376]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane019001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-1.232, 0.952, 0.236]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane021001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-0.206, 0.872, 0.824]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane022001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-0.254, 1.003, 0.851]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane023001.geometry}
+                    material={materials.Kuzov_potolok}
+                  />
+                </group>
+                <group position={[-0.076, 0.988, 0.861]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane024001.geometry}
+                    material={materials.Mirrors_color}
+                  />
+                </group>
+                <group position={[1.972, 0.825, 0.643]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane025001.geometry}
+                    material={materials.Bottom_color}
+                  />
+                </group>
+                <group position={[0.616, 0.834, 0.854]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane026001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[-1.657, 0.411, 0.156]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane028001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-0.263, 0.986, 0.711]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane029001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[0.444, 0.854, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane033001.geometry}
+                    material={materials.baked_Tonel}
+                  />
+                </group>
+                <group position={[-0.357, 1.005, -0.314]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane034001.geometry}
+                    material={materials.Baked_Torpeda_map}
+                  />
+                </group>
+                <group position={[1.222, 0.721, 0.571]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane040001.geometry}
+                    material={materials.baked_Back_Door}
+                  />
+                </group>
+                <group position={[1.647, 1.055, 0.234]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane041001.geometry}
+                    material={materials.Salon_black}
+                  />
+                </group>
+                <group position={[0, 0.852, 0.264]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane042001.geometry}
+                    material={materials.Salon_black}
+                  />
+                </group>
+                <group position={[-0.248, 0.247, -0.395]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane044001.geometry}
+                    material={materials.Salon_black}
+                  />
+                </group>
+                <group position={[-1.001, 0.93, 0.224]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane045001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-1.465, 0.145, 0.553]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane046001.geometry}
+                    material={materials.Back_Bamper}
+                  />
+                </group>
+                <group position={[1.848, 1.046, 0.291]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane047001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[0, 0.771, 0.596]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane048001.geometry}
+                    material={materials.Back_lights_emissive_color_01}
+                  />
+                </group>
+                <group position={[1.639, 1.346, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane049001.geometry}
+                    material={materials.Kuzov_potolok}
+                  />
+                </group>
+                <group position={[-1.492, 0.807, 0.001]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane050001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-1.673, 0.382, -0.547]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane054001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[-1.699, 0.284, 0.175]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane055001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[1.506, 0.298, 0]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Plane057001.geometry}
+                    material={materials.Koleso_mat_Base}
+                  />
+                </group>
+                <group position={[2.001, 0.669, -0.404]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.rubber_01_01001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+                <group position={[0, 0.282, 0.419]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Tube001001.geometry}
+                    material={materials.Kuzov_black_color}
+                  />
+                </group>
+                <group position={[1.333, 0.823, -0.817]}>
+                  <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Tube001__1_001.geometry}
+                    material={materials.Specular_Railing}
+                  />
+                </group>
+              </group>
+            </group>
+          </group>
+        </group>
+        <group
+          position={[4.076, 5.904, -1.005]}
+          rotation={[1.89, 0.881, -2.045]}
+        />
+        <group
+          position={[7.359, 4.958, 6.926]}
+          rotation={[1.242, 0.33, -0.76]}
+        />
+      </group>
     </group>
   );
 }
