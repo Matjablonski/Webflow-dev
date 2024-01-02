@@ -9,6 +9,7 @@ import { LayerMaterial, Color, Depth } from 'lamina'
 import { useControls } from 'leva'
 
 import Model from "./Model"
+import Bmw from './Bmw'
 
 export default function Experience() {
 
@@ -401,7 +402,7 @@ export default function Experience() {
 
         <ambientLight ref={ light } intensity={0.8} />
 
-        <directionalLight castShadow position={[ -10, 10, 0]} intensity={2} />
+        {/* <directionalLight castShadow position={[ -10, 10, 0]} intensity={2} shadow-bias={-0.0001} /> */}
 
         <spotLight 
             ref={mainLight}
@@ -469,7 +470,17 @@ export default function Experience() {
             />
         </mesh> */}
 
-        <mesh ref={ car } position={[0, -1, 0]}>
+
+
+        <mesh 
+            ref={ car } 
+            position={[0, -1, 0]} 
+        >
+            {/* <Bmw 
+                scale={0.0065} 
+                position={[1.5, 0.55, 1.5]} 
+                rotation={[0, Math.PI / 1.2, 0]} 
+            /> */}
             <Model scale={1.6} rotation={[0, Math.PI / 5, 0]} />
             
             <Html 
