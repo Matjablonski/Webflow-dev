@@ -1,0 +1,99 @@
+<spotLight
+    position={[position.x, position.y, position.z]}
+    ref={light}
+    castShadow
+    color={'yellow'}
+    intensity={2}
+    penumbra={1}
+    angle={0.2}
+    // distance={20}
+    attenuation={1}
+    anglePower={6}
+/>
+
+<Headlight color="yellow" position={[position.x, position.y, position.z]} />
+
+<mesh
+    castShadow
+    receiveShadow
+    position={[-2.35, 0.2, 0.45]}
+    scale={0.05}
+    ref={headLight}
+>
+    <sphereGeometry args={[ 1, 10, 10 ]} />
+    <meshStandardMaterial color={"white"} emissive={'cyan'} emissiveIntensity={10}/>
+</mesh>
+
+<mesh
+    // castShadow
+    // receiveShadow
+    position={[0, -1.01, 0]}
+    // scale={0.05}
+    rotation-x={-Math.PI * 0.5}
+>
+    <planeGeometry args={[ 100, 100 ]} />
+    <MeshReflectorMaterial
+        blur={[ 300, 100 ]}
+        mirror={ 0.5 }
+        resolution={2048}
+        mixBlur={1}
+        // mixStrength={80}
+        depthScale={1.3}
+        minDepthThreshold={0.4}
+        maxDepthThreshold={1.4}
+        color={"#FFFFFF"} 
+        metalness={0.5}
+        roughness={1}
+    />
+</mesh>
+
+<mesh
+    position={[position.x, position.y, position.z]}
+    scale={0.03}
+    ref={point}
+>
+    <sphereGeometry args={[ 1, 10, 10 ]} />
+    <meshStandardMaterial color={"red"} />
+</mesh>
+
+<EffectComposer disableNormalPass>
+    <Bloom mipmapBlur luminanceThreshold={10} />
+</EffectComposer>
+
+<fog attach="fog" args={['#FFFFFF', 10, 30]} />
+
+
+function Headlight({ vec = new Vector3(), ...props }) {
+    const light = useRef()
+    const viewport = useThree((state) => state.viewport)
+
+    useFrame((state) => {
+
+        // light.current.target.position.lerp(vec.set((state.mouse.x * viewport.width) / 2, (state.mouse.y * viewport.height) / 2, 0), 0.1)
+        light.current.target.position.set( -16, -1.7, 10 )
+        light.current.target.updateMatrixWorld()
+
+    })
+
+    return <SpotLight ref={light} penumbra={0.5} distance={6} angle={0.35} attenuation={1} anglePower={0} intensity={20} {...props} />
+}
+
+function secondCam() {
+
+    if ( active === true )
+    return;
+
+    cameraControl.current.setLookAt( 0, -1.5, 4, 0, 0, 0, false )
+    cameraControl.current.moveTo( 0, 0, 0, false)
+    cameraControl.current.azimuthAngle = -15 * THREE.MathUtils.DEG2RAD
+    cameraControl.current.polarAngle = 90 * THREE.MathUtils.DEG2RAD
+    cameraControl.current.moveTo( 1.5, 0.2, 0, true)
+    cameraControl.current.rotateTo( -50 * THREE.MathUtils.DEG2RAD, 80 * THREE.MathUtils.DEG2RAD, true )
+    cameraControl.current.zoom( 0.5, true )
+
+    cameraControl.current.addEventListener( 'rest', () => {
+        cameraControl.current.removeAllEventListeners( 'rest' )
+        thirdCam()
+    })
+
+}

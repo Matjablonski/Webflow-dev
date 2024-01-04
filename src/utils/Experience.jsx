@@ -4,24 +4,31 @@ import React from 'react'
 import { useRef, useEffect, useState } from "react"
 import gsap from 'gsap'
 import { useFrame, useThree } from '@react-three/fiber'
-import { Html, CameraControls, AccumulativeShadows, Environment, Lightformer, SpotLight, RandomizedLight, Float, MeshReflectorMaterial, useHelper } from "@react-three/drei"
-import { LayerMaterial, Color, Depth } from 'lamina'
+import { CameraControls, PerformanceMonitor, AccumulativeShadows, Environment, SpotLight, RandomizedLight, useHelper } from "@react-three/drei"
 import { useControls } from 'leva'
 
 import Model from "./Model"
 import Bmw from './Bmw'
+import BmwM4 from './BmwM4'
+import Lightformers from './Lightformers'
+import Tooltips from './Tooltips'
+import TooltipsBmw from './TooltipsBmw'
 
 export default function Experience() {
 
-    // const { position, target } = useControls({
+    // const { position, target, intensity, power } = useControls({
     //     position: {
-    //         value: { x: -2.35, y: 0.2, z: 0.45 },
+    //         value: { x: 0, y: 10, z: 0 },
     //         step: 0.05
     //     },
-    //     target: {
-    //         value: { x: -16, y: -1.7, z: 10 },
-    //         step: 0.05
-    //     }
+    //     // intensity: {
+    //     //     value: 2,
+    //     //     step: 0.05
+    //     // },
+    //     // power: {
+    //     //     value: 2,
+    //     //     step: 0.05
+    //     // },
     // })
 
 
@@ -34,14 +41,20 @@ export default function Experience() {
 
     const wheels = useRef()
     const lights = useRef()
-    const rlights = useRef()
     const roof = useRef()
+    const gauges = useRef()
     const interior = useRef()
+
+    const point = useRef()
     
     const light = useRef()
     const mainLight = useRef()
+    const interiorLight = useRef()
+    const directLight = useRef()
+    const extraLights = useRef()
     const headLight = useRef()
-    // useHelper(light, THREE.SpotLightHelper, 'cyan')
+
+    // useHelper(directLight, THREE.DirectionalLightHelper, 'cyan')
 
     const distFactor = 7
 
@@ -49,8 +62,7 @@ export default function Experience() {
     let camera = useThree((state) => state.camera)
     let scene = useThree((state) => state.scene)
 
-    const wheelsPosition = [ 2.5, 0.8, 0 ]
-    let tips, rotateScene, saved
+    let tips, tipsInterior, rotateScene
 
     // Exclusive control for user dragging
     let userDragging = false;
@@ -60,100 +72,56 @@ export default function Experience() {
 
         cameraControl.current.disconnect()
 
-        // Scene rotation
-        const hotAnimation = gsap.timeline({ 
-            paused: false,
-            defaults: {
-                repeat: -1
-            }
-        })
-        hotAnimation.to(cameraControl.current, {
-            azimuthAngle: cameraControl.current.azimuthAngle - 360 * THREE.MathUtils.DEG2RAD,
-            duration: 150,
-            ease: 'linear',
-            delay: 1
-        })
-        .to(cameraControl.current, {
-            distance: cameraControl.current.distance - 1.5,
-            polarAngle: cameraControl.current.polarAngle - 6 * THREE.MathUtils.DEG2RAD,
-            duration: 10,
-            ease: 'power1.inOut',
-            yoyo: true,
-            yoyoEase: true,
-        }, 0);
-
         const onRest = () => {
 
             cameraControl.current.removeEventListener( 'rest', onRest );
-            // cameraControl.current.dolly(12, true)
-            hotAnimation.restart()
             userDragging = false;
             disableAutoRotate = false;
         
         }
         
-        // cameraControl.current.addEventListener( 'controlstart', () => {
-        
-        //     console.log('dragging')
-        //     // hotAnimation.pause()
-        //     cameraControl.current.removeEventListener( 'rest', onRest );
-        //     userDragging = true;
-        //     disableAutoRotate = true;
-        
-        // })
-    
-        // cameraControl.current.addEventListener( 'controlend', () => {
-        
-        //     if ( cameraControl.current.active ) {
-        
-        //         cameraControl.current.addEventListener( 'rest', onRest );
-        
-        //     } else {
-        
-        //         onRest();
-        
-        //     }
-        
-        // })
-        
-        // cameraControl.current.addEventListener( 'transitionstart', () => {
-        
-        //     if ( userDragging ) return;
-        
-        //     disableAutoRotate = true;
-        //     cameraControl.current.addEventListener( 'rest', onRest );
-        
-        // })
 
         // TOGGLE CAMERA CONTROLS
+        let active = false
         btn.addEventListener('click', () => {
 
             if ( status === !true ) {
+
+                // Change cursor
                 document.body.style.cursor = 'grab'
-                hotAnimation.pause()
+
+                // Save position and return
+                active = true
+                cameraIntro()
+                cameraControl.current.reset( true )
+                cameraControl.current.maxSpeed = 10
+                cameraControl.current.smoothTime = 0.25
+                cameraControl.current.setLookAt( 0, 0, 12, 0, 0, 0, true)
+                cameraControl.current.moveTo( 0, 0, 0, true)
+
                 buttonTl.play()
-                // cameraControl.current.reset()
-                // setAnimate((prevAnimate) => !prevAnimate)
                 tips.timeScale(1).play()
-                reverseCam()
                 cameraControl.current.enabled = true
                 cameraControl.current.connect( gl.domElement )
+
                 // Make interior btn active
                 document.querySelector('.btn-interior').classList.remove('inactive')
                 status = true
+
             } else {
+
                 document.body.style.cursor = 'default'
-                // cameraControl.current.reset(true)
-                cameraControl.current.setPosition( 0, 0, 12, true )
+                active = false
+                cameraIntro()
                 cameraControl.current.addEventListener('rest', onRest)
-                // hotAnimation.invalidate().restart()
-                // cameraControl.current.reset()
                 buttonTl.reverse()
                 tips.timeScale(1).reverse()
                 cameraControl.current.disconnect()
+
                 // Make interior btn inactive
                 document.querySelector('.btn-interior').classList.add('inactive')
                 status = false
+
             }
 
         }, [ camera ])
@@ -170,6 +138,119 @@ export default function Experience() {
             duration: 2,
             ease: 'power4.inOut'
         })
+
+        function cameraIntro() {
+
+            cameraControl.current.smoothTime = 8
+            cameraControl.current.maxSpeed = 2
+            // cameraControl.current.restThreshold = 0.3
+
+            function firstCam() {
+
+                if ( active === true )
+                return;
+
+                cameraControl.current.reset( false )
+                cameraControl.current.restThreshold = 0.3
+                cameraControl.current.setLookAt( -2, -0.5, 4, -1, 0, 0, false )
+                // cameraControl.current.moveTo( 0, 1.2, 0, false)
+                cameraControl.current.azimuthAngle = -90 * THREE.MathUtils.DEG2RAD
+                cameraControl.current.polarAngle = 50 * THREE.MathUtils.DEG2RAD
+
+                setTimeout(() => {
+                    cameraControl.current.moveTo( 0.4, -0.8, 2.2, true)
+                    cameraControl.current.rotateTo( -70 * THREE.MathUtils.DEG2RAD, 110 * THREE.MathUtils.DEG2RAD, true )
+                }, 10)
+
+                cameraControl.current.addEventListener( 'rest', () => {
+                    console.log('stopped')
+                    cameraControl.current.removeAllEventListeners( 'rest' )
+                    secondCam()
+                })
+
+            }
+
+            function secondCam() {
+
+                if ( active === true )
+                return;
+
+                cameraControl.current.reset( false )
+                cameraControl.current.restThreshold = 0.4
+                cameraControl.current.moveTo( 3.5, 0, 0, false)
+                cameraControl.current.setLookAt( 3.5, -3, 3, 0, 0, 0, false )
+                cameraControl.current.azimuthAngle = 20 * THREE.MathUtils.DEG2RAD
+                cameraControl.current.polarAngle = 90 * THREE.MathUtils.DEG2RAD
+
+                setTimeout(() => {
+                    cameraControl.current.moveTo( -1, -0.2, 3, true)
+                    cameraControl.current.rotateTo( 25 * THREE.MathUtils.DEG2RAD, 80 * THREE.MathUtils.DEG2RAD, true )
+                    cameraControl.current.zoom( 0.5, true )
+                }, 10)
+
+                cameraControl.current.addEventListener( 'rest', () => {
+                    cameraControl.current.removeAllEventListeners( 'rest' )
+                    thirdCam()
+                })
+
+            }
+
+            function thirdCam() {
+
+                if ( active === true )
+                return;
+
+                cameraControl.current.reset( false )
+                cameraControl.current.restThreshold = 0.7
+                cameraControl.current.setLookAt( 0, 5, 0, 0, 0, 0, false )
+                cameraControl.current.moveTo( 2.5, 0, -2, false)
+                cameraControl.current.azimuthAngle = 90 * THREE.MathUtils.DEG2RAD
+                cameraControl.current.polarAngle = 35 * THREE.MathUtils.DEG2RAD
+
+                setTimeout(() => {
+                    cameraControl.current.moveTo( -2.5, -1, 2, true)
+                    cameraControl.current.rotatePolarTo( 0 * THREE.MathUtils.DEG2RAD, true )
+                }, 10)
+
+                cameraControl.current.addEventListener( 'rest', () => {
+                    cameraControl.current.removeAllEventListeners( 'rest' )
+                    fourthCam()
+                })
+
+            }
+
+            function fourthCam() {
+
+                if ( active === true )
+                return;
+
+                cameraControl.current.reset( false )
+                cameraControl.current.restThreshold = 0.4
+                cameraControl.current.setLookAt( 0, -2, 10, 0, -0.3, 0, false )
+                cameraControl.current.moveTo( -1, -0.3, 0, false)
+                cameraControl.current.azimuthAngle = 100 * THREE.MathUtils.DEG2RAD
+                cameraControl.current.polarAngle = 90 * THREE.MathUtils.DEG2RAD
+
+                setTimeout(() => {
+                    cameraControl.current.moveTo( -4, -0.2, 0.5, true)
+                    cameraControl.current.rotateTo( 108 * THREE.MathUtils.DEG2RAD, 88 * THREE.MathUtils.DEG2RAD, true )
+                }, 10)
+
+                cameraControl.current.addEventListener( 'rest', () => {
+                    cameraControl.current.removeAllEventListeners( 'rest' )
+                    firstCam()
+                })
+
+            }
+
+            firstCam()
+            // secondCam()
+            // thirdCam()
+            // fourthCam()
+
+        }
+
+        cameraIntro()
 
 
         function fly(startingPos) {
@@ -215,18 +296,11 @@ export default function Experience() {
                         cameraX,
                         cameraY,
                         cameraZ,
-                        true, // IMPORTANT! disable cameraControls's transition and leave it to gsap.
+                        true
                     );
-                    cameraControl.current.zoom( -0.0021, true )
 
-                    setTimeout(() => {
-                        cameraControl.current.setTarget(
-                            lookAtX,
-                            lookAtY,
-                            lookAtZ,
-                            true, // IMPORTANT! disable cameraControls's transition and leave it to gsap.
-                        );
-                    }, 2300)
+                    gsap.delayedCall( 0.5, () => cameraControl.current.zoom( -0.0021, true ))
+                    gsap.delayedCall( 2.3, () => cameraControl.current.setTarget( lookAtX, lookAtY, lookAtZ, true ))
         
                 },
                 onStart() {
@@ -282,7 +356,9 @@ export default function Experience() {
         })
 
         // Show tooltips
-        const labels = document.querySelectorAll('.label > div, .label-alt')
+        const labels = document.querySelectorAll('.label > div')
+        const labelsInt = document.querySelector('.label-int > div')
+
         tips = gsap.timeline({ paused: true })
         tips.from(labels, {
             scale: 1.25,
@@ -293,26 +369,39 @@ export default function Experience() {
             duration: 0.8
         })
 
-        // Reverse cam
-        function reverseCam() {
+        tipsInterior = gsap.timeline({ paused: true })
+        tipsInterior.from(labelsInt, {
+            scale: 1.25,
+            filter: 'blur(8px)',
+            autoAlpha: 0,
+            stagger: 0.08,
+            ease: 'expo.out',
+            duration: 0.8
+        })
 
-            let rev = gsap.timeline({
-                defaults: {
-                    duration: 1.2,
-                    ease: 'expo.out'
-                },
-                onComplete: () => cam.revert()
-            })
-            rev.to(scene.position, {
-                z: 0
-            })
-            .to(scene.rotation, {
-                x: 0
-            }, '<')
-
-            return rev
-
-        }
+        // Animate light
+        let showLight = gsap.timeline({ 
+            paused: true
+        })
+        showLight.to([ light.current, mainLight.current ], {
+            intensity: 0,
+            duration: 4,
+            ease: 'power2.out'
+        })
+        .to(extraLights.current.position, {
+            x: -30,
+            y: -10,
+            duration: 4,
+            ease: 'power2.inOut'
+        }, '<')
+        .to(interiorLight.current, {
+            intensity: 2.5,
+            power: 40,
+            delay: 3.5,
+            duration: 4.5,
+            ease: 'expo.out',
+            onStart: () => tipsInterior.play()            
+        }, '<')
 
 
         let bg = document.querySelector('.switch')
@@ -320,7 +409,6 @@ export default function Experience() {
         
         function disconnect() {
             cam.timeScale(1).play()
-            // cameraControl.current.enabled = false
             cameraControl.current.removeEventListener('rest', disconnect)
         }
 
@@ -347,39 +435,42 @@ export default function Experience() {
 
         // Cursor change
         cameraControl.current.addEventListener( 'controlstart', function() {
+
             document.body.style.cursor = 'grabbing'
+
         })
 
         cameraControl.current.addEventListener( 'controlend', function() {
+
             document.body.style.cursor = 'grab'
+
         })
 
         const closeBtn = document.querySelector('.close-btn')
         closeBtn.addEventListener('click', () => {
+
             hideCameraBtn.reverse()
             showText.timeScale(1.5).reverse()
+            showLight.tweenTo(0, { ease: 'power1.out', duration: 1 })
             // rotateScene.pause()
             tips.play()
             cameraControl.current.setTarget(0, 0, 0, true)
             cameraControl.current.reset(true)
             cameraControl.current.connect( gl.domElement )
+
         })
 
         const interiorBtn = document.querySelector('.btn-interior')
         interiorBtn.addEventListener('click', () => {
+
             cameraControl.current.saveState()
             hideCameraBtn.play()
             let startingPos = cameraControl.current.getPosition()
             fly(startingPos)
-            // console.log(typeof startingPos.x)
-            // interior.invalidate().restart()
-            // cameraControl.current.setLookAt( 0.3, 0.7, -0.4, 0, 0.5, 0, true)
+            showLight.play()
             tips.timeScale(2).reverse()
-        })
 
-        // return () => {
-        //     sceneRotation.kill();
-        // };
+        })
 
     }, [])
 
@@ -400,9 +491,9 @@ export default function Experience() {
             enableZoom
         />
 
-        <ambientLight ref={ light } intensity={0.8} />
+        <ambientLight ref={ light } intensity={4.5} />
 
-        {/* <directionalLight castShadow position={[ -10, 10, 0]} intensity={2} shadow-bias={-0.0001} /> */}
+        <directionalLight ref={ directLight } castShadow position={[ 2, 4, 3]} intensity={1} shadow-bias={-0.0002}/>
 
         <spotLight 
             ref={mainLight}
@@ -414,162 +505,37 @@ export default function Experience() {
             shadow-bias={-0.0001} 
         />
 
-        {/* <pointLight
-            position={[position.x, position.y, position.z]}
-            intensity={2}
-            color={'white'}
-            power={200}
-        /> */}
-
-        {/* <spotLight
-            position={[position.x, position.y, position.z]}
-            ref={light}
+        <pointLight
+            ref={interiorLight}
+            position={[ 0.25, 0.7, -0.6 ]}
+            intensity={0}
+            power={0}
+            color={'#FFFAE8'}
             castShadow
-            color={'yellow'}
-            intensity={2}
-            penumbra={1}
-            angle={0.2}
-            // distance={20}
-            attenuation={1}
-            anglePower={6}
-        /> */}
-
-        {/* <Headlight color="yellow" position={[position.x, position.y, position.z]} /> */}
-
-        {/* <mesh
-            castShadow
-            receiveShadow
-            position={[-2.35, 0.2, 0.45]}
-            scale={0.05}
-            ref={headLight}
-        >
-            <sphereGeometry args={[ 1, 10, 10 ]} />
-            <meshStandardMaterial color={"white"} emissive={'cyan'} emissiveIntensity={10}/>
-        </mesh> */}
-
-        {/* <mesh
-            // castShadow
-            // receiveShadow
-            position={[0, -1.01, 0]}
-            // scale={0.05}
-            rotation-x={-Math.PI * 0.5}
-        >
-            <planeGeometry args={[ 100, 100 ]} />
-            <MeshReflectorMaterial
-                blur={[ 300, 100 ]}
-                mirror={ 0.5 }
-                resolution={2048}
-                mixBlur={1}
-                // mixStrength={80}
-                depthScale={1.3}
-                minDepthThreshold={0.4}
-                maxDepthThreshold={1.4}
-                color={"#FFFFFF"} 
-                metalness={0.5}
-                roughness={1}
-            />
-        </mesh> */}
-
-
+        />
 
         <mesh 
             ref={ car } 
             position={[0, -1, 0]} 
         >
-            {/* <Bmw 
-                scale={0.0065} 
-                position={[1.5, 0.55, 1.5]} 
-                rotation={[0, Math.PI / 1.2, 0]} 
+            <Bmw 
+                scale={1.4} 
+                position={[ 0, -0.02, 0 ]}
+                rotation={[0, -Math.PI / 3.5, 0]} 
+            />
+
+            {/* <BmwM4
+                // scale={0.006} 
+                // position={[1.5, 1.42, 1.5]} 
+                rotation={[0, -Math.PI / 3, 0]} 
             /> */}
-            <Model scale={1.6} rotation={[0, Math.PI / 5, 0]} />
+
+            {/* <Model scale={1.6} rotation={[0, Math.PI / 5, 0]} /> */}
             
-            <Html 
-                key='wheels'
-                ref={wheels}
-                position={wheelsPosition}
-                wrapperClass='label'
-                distanceFactor={ distFactor }
-                occlude={ car }
-                center
-            >
-                <div 
-                    className='event'
-                    onClick={ (e) => {
-                        // saved = cameraControl.current.getPosition()
-                        cameraControl.current.saveState()
-                        // gsap.to(scene.rotation, { y: 0, ease: 'power4.out', duration: 0.1 })
-                        cameraControl.current.disconnect()
-                        // cameraControl.current.maxAzimuthAngle = Math.PI / 0.42
-                        // cameraControl.current.minAzimuthAngle = Math.PI / 0.52
-                        hideCameraBtn.play()
-                        showText.timeScale(1).play()
-                        cameraControl.current.setLookAt( 2.5, -0.3, 1.5, 2.7, -0.5, 0, true)
-                        cameraControl.current.zoom( -0.4, true )
-                        // rotateScene.play()
-                        tips.timeScale(2).reverse()
-                    }}
-                ></div>
-            </Html>
+            {/* <Tooltips /> */}
+            {/* <TooltipsBmw ref={cameraControl} /> */}
             
-            <Html 
-                key='rlights'
-                ref={rlights}
-                position={[ 2, 1.1, -2.6 ]}
-                wrapperClass='label'
-                distanceFactor={ distFactor }
-                occlude={ car }
-                center
-            >   
-            </Html>
-            <Html 
-                key='lights'
-                ref={lights}
-                position={[ -2.55, 1.1, 0.4 ]}
-                wrapperClass='label'
-                className='lights'
-                distanceFactor={ distFactor }
-                occlude={ car }
-                center
-            >
-                <div 
-                    className='event'
-                    onClick={ (e) => {
-                        cameraControl.current.saveState()
-                        hideCameraBtn.play()
-                        cameraControl.current.setLookAt( -3, 0.8, 2, -2.55, 0.2, 0.4, true)
-                        cameraControl.current.zoom( -0.5, true )
-                        tips.timeScale(2).reverse()
-                    }}
-                ></div>
-            </Html>
-            <Html 
-                // center
-                key='roof'
-                ref={roof}
-                position={[ 1, 2.3, 0 ]}
-                wrapperClass='label'
-                distanceFactor={ distFactor }
-                occlude={ car }
-                center
-            >
-                <div 
-                    className='event'
-                    onClick={ (e) => {
-                        cameraControl.current.saveState()
-                        hideCameraBtn.play()
-                        cameraControl.current.setLookAt( 8, 3, 0, 0.5, 1, -1.5, true)
-                        cameraControl.current.dolly( 2, true )
-                        tips.timeScale(2).reverse()
-                    }}
-                ></div>
-            </Html>
         </mesh>
-
-        {/* <EffectComposer disableNormalPass>
-            <Bloom mipmapBlur luminanceThreshold={10} />
-        </EffectComposer> */}
-
-        {/* <fog attach="fog" args={['#FFFFFF', 10, 30]} /> */}
 
         <AccumulativeShadows 
             position={[0, -1.01, 0]} 
@@ -581,63 +547,20 @@ export default function Experience() {
             <RandomizedLight amount={8} radius={8} ambient={0.5} position={[1, 5, -1]} />
         </AccumulativeShadows>
 
-        <Environment frames={degraded ? 1 : Infinity} resolution={256} background blur={1}>
-            <Lightformers />
+        <PerformanceMonitor onDecline={() => degrade(true)} />
+
+        <Environment 
+            preset='dawn'
+            frames={degraded ? 1 : Infinity} 
+            resolution={512} 
+            background blur={1}
+        >
+            <Lightformers ref={extraLights} />
         </Environment>
 
     </>
 
 }
-
-function Headlight({ vec = new Vector3(), ...props }) {
-    const light = useRef()
-    const viewport = useThree((state) => state.viewport)
-
-    useFrame((state) => {
-
-        // light.current.target.position.lerp(vec.set((state.mouse.x * viewport.width) / 2, (state.mouse.y * viewport.height) / 2, 0), 0.1)
-        light.current.target.position.set( -16, -1.7, 10 )
-        light.current.target.updateMatrixWorld()
-
-    })
-
-    return <SpotLight ref={light} penumbra={0.5} distance={6} angle={0.35} attenuation={1} anglePower={0} intensity={20} {...props} />
-}
-
-function Lightformers({ positions = [2, 0, 2, 0, 2, 0, 2, 0] }) {
-    const group = useRef()
-    useFrame((state, delta) => (group.current.position.z += delta * 10) > 20 && (group.current.position.z = -60))
-    return (
-      <>
-        {/* Ceiling */}
-        <Lightformer intensity={0.75} rotation-x={Math.PI / 2} position={[0, 5, -9]} scale={[10, 10, 1]} />
-        <group rotation={[0, 0.5, 0]}>
-          <group ref={group}>
-            {positions.map((x, i) => (
-              <Lightformer key={i} form="circle" intensity={2} rotation={[Math.PI / 2, 0, 0]} position={[x, 4, i * 4]} scale={[3, 1, 1]} />
-            ))}
-          </group>
-        </group>
-        {/* Sides */}
-        <Lightformer intensity={4} rotation-y={Math.PI / 2} position={[-5, 1, -1]} scale={[20, 0.1, 1]} />
-        <Lightformer rotation-y={Math.PI / 2} position={[-5, -1, -1]} scale={[20, 0.5, 1]} />
-        <Lightformer rotation-y={-Math.PI / 2} position={[10, 1, 0]} scale={[20, 1, 1]} />
-        {/* Accent (red) */}
-        <Float speed={5} floatIntensity={2} rotationIntensity={2}>
-          <Lightformer form="ring" color="red" intensity={1} scale={10} position={[-15, 4, -18]} target={[0, 0, 0]} />
-        </Float>
-        {/* Background */}
-        <mesh scale={100}>
-          <sphereGeometry args={[1, 64, 64]} />
-          <LayerMaterial side={THREE.BackSide}>
-            <Color color="#444" alpha={1} mode="normal" />
-            <Depth colorA="blue" colorB="black" alpha={0.5} mode="normal" near={0} far={400} origin={[100, 100, 100]} />
-          </LayerMaterial>
-        </mesh>
-      </>
-    )
-}
-
 
 // ANIMATIONS
 

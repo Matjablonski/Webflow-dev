@@ -16,12 +16,12 @@ export default function Model(props) {
   const { scene, nodes, materials } = useGLTF("https://dl.dropbox.com/scl/fi/zhqsz827pt3chgrn1xvps/mini_hatch_cooper_s_NEW.glb?rlkey=n20hm5469qwanu8s7rzmaplfv");
   useLayoutEffect(() => {
     Object.values(nodes).forEach((node) => node.isMesh && (node.receiveShadow = node.castShadow = true))
-    applyProps(materials.Specular_Railing, { metalness: 0.9, roughness: 0.1, roughnessMap: null, normalScale: [4, 4], toneMapped: false, specularIntensity: 0.5 })
+    applyProps(materials.Specular_Railing, { metalness: 0.8, clearcoat: 1, roughness: 0.12, roughnessMap: null, normalScale: [4, 4], toneMapped: false, specularIntensity: 0.5 })
     applyProps(materials.Glass_Windows, { roughness: 0, clearcoat: 0.1, clearcoatRoughness: 0.1, ior: 1.5 })
     applyProps(materials.PANARAMA, { ior: 0.15, roughness: 0, clearcoat: 0.1, clearcoatRoughness: 0.1 })
     applyProps(materials.Koles_mat_Spec, { envMapIntensity: 3, roughness: 0.4, metalness: 1 })
     applyProps(materials.Mirrors_color, { envMapIntensity: 2, roughness: 0.3, metalness: 1 })
-    applyProps(materials.Kuzov_Main_color, { envMapIntensity: 2.5, clearcoat: 1, clearcoatRoughness: 0.5, reflectivity: 1, roughness: 0.07, metalness: 0.05, sheen: 1, specularIntensity: 0.5, color: '#adadad' })
+    applyProps(materials.Kuzov_Main_color, { envMapIntensity: 3, clearcoat: 1, reflectivity: 1, roughness: 0.12, metalness: 0.15, color: '#adadad' })
     applyProps(materials.Tire_mat_texture, { color: '#222', roughness: 0.5, specularIntensity: 0.5, roughnessMap: null, normalScale: [4, 4] })
     applyProps(materials.Back_lights_emissive_color_01, { specularIntensity: 0.5, emissiveIntensity: 5 })
     applyProps(materials.Glass_backlights, { color: '#531717', roughness: 0, clearcoat: 0.5 })
@@ -43,6 +43,19 @@ export default function Model(props) {
     let blackColor = { r: 0.00402, g: 0.00402, b: 0.00402 }
     let purpleColor = { r: 0.18782, g: 0.18782, b: 0.18782 }
 
+    let colorMap = {
+
+        silverColor,
+        blueColor,
+        yellowColor,
+        redColor,
+        greenColor,
+        whiteColor,
+        blackColor,
+        purpleColor
+
+    }
+
     // TIMELINE VARS
     const ease = 'power4.out'
     const duration = 1
@@ -61,8 +74,8 @@ export default function Model(props) {
             btn.classList.add('active')
 
             // Change color
-            let paint = eval( btn.getAttribute('color-paint') )
-            let roof = eval( btn.getAttribute('color-roof') )    
+            let colorVarName = btn.getAttribute('color-paint')
+            let selectedColor = colorMap[ colorVarName ]  
             
             let tl = gsap.timeline({
                 defaults: {
@@ -71,14 +84,14 @@ export default function Model(props) {
                 }
             })
             tl.to(materials.Kuzov_Main_color.color, {
-                r: paint.r,
-                g: paint.g,
-                b: paint.b,
+                r: selectedColor.r,
+                g: selectedColor.g,
+                b: selectedColor.b,
             })
             tl.to(materials.Kuzov_potolok.color, {
-                r: roof.r,
-                g: roof.g,
-                b: roof.b,
+                r:selectedColor.r,
+                g:selectedColor.g,
+                b:selectedColor.b,
             }, '<')
 
         })
