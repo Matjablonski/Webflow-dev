@@ -126,13 +126,9 @@ export default function Experience() {
 
         }, [ camera ])
 
+        console.log('shit')
 
-        let intro = gsap.timeline({
-            // onStart: () => rotateScene.play(),
-            onStart: () => {
-                // cam.play()
-            }
-        })
+        let intro = gsap.timeline({})
         intro.to('.preloader', {
             xPercent: 100,
             duration: 2,

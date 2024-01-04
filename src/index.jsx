@@ -18,15 +18,15 @@ function App() {
                 camera={{ position: [0, 0, 12], fov: 30 }}
                 // onCreated={({ gl }) => {
                 //     gl.setClearColor('white')
-                //     // gl.toneMapping = THREE.ACESFilmicToneMapping
+                //     gl.toneMapping = THREE.ACESFilmicToneMapping
                 //     gl.outputColorSpace = THREE.SRGBColorSpace
                 // }}
             >
-                <EffectComposer multisampling={10} disableNormalPass>
+                {/* <EffectComposer multisampling={10} disableNormalPass>
                     <Bloom mipmapBlur luminanceThreshold={5} />
                     <Vignette offset={0.3} darkness={0.5} />
                     <ToneMapping />
-                </EffectComposer>
+                </EffectComposer> */}
 
                 {/* <Effects multisamping={20} renderIndex={1} disableGamma={true} disableRenderPass={false} disableRender={false}>
                     <unrealBloomPass threshold={2} strength={0.3} radius={0} />
@@ -35,9 +35,9 @@ function App() {
             </Canvas>
         </div>
     )
+    
 }
   
-// createRoot(document.getElementById('root')).render(<App />)
 const render = createRoot(document.getElementById('root'))
 
 render.render(
