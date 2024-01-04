@@ -491,7 +491,7 @@ export default function Experience() {
             enableZoom
         />
 
-        <ambientLight ref={ light } intensity={4.5} />
+        <ambientLight ref={ light } intensity={0.5} />
 
         <directionalLight ref={ directLight } castShadow position={[ 2, 4, 3]} intensity={1} shadow-bias={-0.0002}/>
 
@@ -550,7 +550,7 @@ export default function Experience() {
         <PerformanceMonitor onDecline={() => degrade(true)} />
 
         <Environment 
-            preset='dawn'
+            // preset='forest'
             frames={degraded ? 1 : Infinity} 
             resolution={512} 
             background blur={1}
