@@ -16,6 +16,7 @@ function App() {
             <Canvas 
                 shadows 
                 camera={{ position: [0, 0, 12], fov: 30 }}
+<<<<<<< HEAD
                 onCreated={({ gl }) => {
                     // gl.setClearColor('white')
                     // gl.toneMapping = THREE.ACESFilmicToneMapping
@@ -32,9 +33,19 @@ function App() {
 
                 {/* <EffectComposer multisampling={10} disableNormalPass>
                     <Bloom mipmapBlur luminanceThreshold={5} intensity={1.2} />
+=======
+                // onCreated={({ gl }) => {
+                //     gl.setClearColor('white')
+                //     // gl.toneMapping = THREE.ACESFilmicToneMapping
+                //     gl.outputColorSpace = THREE.SRGBColorSpace
+                // }}
+            >
+                <EffectComposer multisampling={10} disableNormalPass>
+                    <Bloom mipmapBlur luminanceThreshold={5} />
+>>>>>>> parent of 1b0724f (Shit)
                     <Vignette offset={0.3} darkness={0.5} />
                     <ToneMapping />
-                </EffectComposer> */}
+                </EffectComposer>
 
                 {/* <Effects multisamping={8} renderIndex={1} disableGamma={true} disableRenderPass={false} disableRender={false}>
                     <unrealBloomPass threshold={3} strength={0.5} radius={0} />
@@ -43,9 +54,13 @@ function App() {
             </Canvas>
         </div>
     )
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 1b0724f (Shit)
 }
   
+// createRoot(document.getElementById('root')).render(<App />)
 const render = createRoot(document.getElementById('root'))
 
 render.render(
