@@ -8,15 +8,15 @@ export default function Bmw(props) {
   useLayoutEffect(() => {
     Object.values(nodes).forEach((node) => node.isMesh && (node.receiveShadow = node.castShadow = true))
     // applyProps(materials.Specular_Railing, { color: '#222', roughness: 0.2, roughnessMap: null, normalScale: [4, 4] })
-    // applyProps(materials.Glass_Windows, { color: 'black', roughness: 0.1, clearcoat: 0.1 })
+    applyProps(materials.vm_T3_024_glass_windows, { color: 'black', opacity: 0.4, metalness: 1 })
     // applyProps(materials.PANARAMA, { color: 'black', roughness: 0.1, clearcoat: 0.1 })
     applyProps(materials.vm_T3_024_brake_disc, { envMapIntensity: 2, reflectivity: 1, roughness: 0.1, metalness: 0.8, color: '#121212' })
     // applyProps(materials.Mirrors_color, { envMapIntensity: 4, roughness: 0.5, metalness: 1 })
-    applyProps(materials.vm_T3_001_carpaint, { envMapIntensity: 2, clearCoat: 1, roughness: 0.4, metalness: 0.9, color: '#DBDBF1' })
+    applyProps(materials.vm_T3_001_carpaint, { envMapIntensity: 2, clearCoat: 1, roughness: 0.4, metalness: 0.9, color: [ 0.859, 0.859, 0.945 ] })
     applyProps(materials.vm_T3_024_black_plastic_glossy, { specular: 0.5, color: '#222', metalness: 0.3, roughness: 0.2,  })
-    applyProps(materials.vm_T3_024_led_light, { color: [ 1.5, 1, 4 ], emissive: 'white', emissiveIntensity: 12, toneMapped: false })
+    applyProps(materials.vm_T3_024_led_light, { color: [ 1.5, 1, 4 ], emissive: [ 0.8, 0.9, 1 ], emissiveIntensity: 12, toneMapped: false })
     // applyProps(materials.Glass_backlights, { color: '#1F1616', roughness: 0.2, clearcoat: 0.5 })
-    // applyProps(materials.Kuzov_black_color, { color: 'black', roughness: 0.2, clearcoat: 0.1 })
+    applyProps(materials.vm_T3_024_plate, { color: '#D8D8D8', roughness: 0.6, metalness: 0.1 })
   }, [nodes, materials])
 
   useEffect(() => {

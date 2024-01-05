@@ -126,9 +126,13 @@ export default function Experience() {
 
         }, [ camera ])
 
-        console.log('shit')
 
-        let intro = gsap.timeline({})
+        let intro = gsap.timeline({
+            // onStart: () => rotateScene.play(),
+            onStart: () => {
+                // cam.play()
+            }
+        })
         intro.to('.preloader', {
             xPercent: 100,
             duration: 2,
@@ -149,7 +153,6 @@ export default function Experience() {
                 cameraControl.current.reset( false )
                 cameraControl.current.restThreshold = 0.3
                 cameraControl.current.setLookAt( -2, -0.5, 4, -1, 0, 0, false )
-                // cameraControl.current.moveTo( 0, 1.2, 0, false)
                 cameraControl.current.azimuthAngle = -90 * THREE.MathUtils.DEG2RAD
                 cameraControl.current.polarAngle = 50 * THREE.MathUtils.DEG2RAD
 
@@ -487,7 +490,7 @@ export default function Experience() {
             enableZoom
         />
 
-        <ambientLight ref={ light } intensity={0.5} />
+        <ambientLight ref={ light } intensity={2} />
 
         <directionalLight ref={ directLight } castShadow position={[ 2, 4, 3]} intensity={1} shadow-bias={-0.0002}/>
 

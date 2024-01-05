@@ -16,26 +16,34 @@ function App() {
             <Canvas 
                 shadows 
                 camera={{ position: [0, 0, 12], fov: 30 }}
-                // onCreated={({ gl }) => {
-                //     gl.setClearColor('white')
-                //     gl.toneMapping = THREE.ACESFilmicToneMapping
-                //     gl.outputColorSpace = THREE.SRGBColorSpace
-                // }}
+                onCreated={({ gl }) => {
+                    // gl.setClearColor('white')
+                    // gl.toneMapping = THREE.ACESFilmicToneMapping
+                    // gl.outputColorSpace = THREE.SRGBColorSpace
+                    // gl.gammaOutput = true;
+                    // gl.gammaFactor = 1;
+                    gl.gammaOutput = true
+                    gl.toneMapping = THREE.ACESFilmicToneMapping; // Choose a tone mapping algorithm
+                    gl.toneMappingExposure = 1.0; // Adjust exposure
+                    gl.toneMappingWhitePoint = 0.5; // Adjust white point
+                }}
             >
+                <Experience/>
+
                 {/* <EffectComposer multisampling={10} disableNormalPass>
-                    <Bloom mipmapBlur luminanceThreshold={5} />
+                    <Bloom mipmapBlur luminanceThreshold={5} intensity={1.2} />
                     <Vignette offset={0.3} darkness={0.5} />
                     <ToneMapping />
                 </EffectComposer> */}
 
-                {/* <Effects multisamping={20} renderIndex={1} disableGamma={true} disableRenderPass={false} disableRender={false}>
-                    <unrealBloomPass threshold={2} strength={0.3} radius={0} />
+                {/* <Effects multisamping={8} renderIndex={1} disableGamma={true} disableRenderPass={false} disableRender={false}>
+                    <unrealBloomPass threshold={3} strength={0.5} radius={0} />
                 </Effects> */}
 
             </Canvas>
         </div>
     )
-    
+
 }
   
 const render = createRoot(document.getElementById('root'))
