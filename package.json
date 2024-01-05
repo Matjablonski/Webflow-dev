@@ -52,6 +52,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "@babel/runtime": "^7.23.7",
     "@finsweet/ts-utils": "^0.40.0",
     "@react-three/drei": "^9.93.0",
     "@react-three/fiber": "^8.15.13",

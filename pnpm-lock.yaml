@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@babel/runtime':
+    specifier: ^7.23.7
+    version: 7.23.7
   '@finsweet/ts-utils':
     specifier: ^0.40.0
     version: 0.40.0
