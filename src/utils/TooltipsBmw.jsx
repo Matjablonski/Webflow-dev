@@ -33,7 +33,7 @@ const TooltipsBmw = React.forwardRef((props, cameraControl) => {
                 ></div>
             </Html>
 
-            <Html 
+            {/* <Html 
                 key='lights'
                 // ref={lights}
                 position={[ -1.5, 1.1, 2.5 ]}
@@ -52,9 +52,9 @@ const TooltipsBmw = React.forwardRef((props, cameraControl) => {
                         tips.timeScale(2).reverse()
                     }}
                 ></div>
-            </Html>
+            </Html> */}
 
-            <Html 
+            {/* <Html 
                 // center
                 key='rearlight'
                 position={[ 2, 1.2, -2.7 ]}
@@ -80,7 +80,7 @@ const TooltipsBmw = React.forwardRef((props, cameraControl) => {
                         tips.timeScale(2).reverse()
                     }}
                 ></div>
-            </Html>
+            </Html> */}
 
             {/* <Html 
                 key='gauges'

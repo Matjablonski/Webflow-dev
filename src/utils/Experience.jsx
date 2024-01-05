@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import { Vector3 } from 'three'
 import React from 'react'
 import { useRef, useEffect, useState } from "react"
 import gsap from 'gsap'
@@ -532,7 +531,7 @@ export default function Experience() {
             {/* <Model scale={1.6} rotation={[0, Math.PI / 5, 0]} /> */}
             
             {/* <Tooltips /> */}
-            {/* <TooltipsBmw ref={cameraControl} /> */}
+            <TooltipsBmw ref={cameraControl} />
             
         </mesh>
 
