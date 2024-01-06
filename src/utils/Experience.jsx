@@ -3,8 +3,10 @@ import React from 'react'
 import { useRef, useEffect, useState } from "react"
 import gsap from 'gsap'
 import { useFrame, useThree } from '@react-three/fiber'
-import { CameraControls, PerformanceMonitor, AccumulativeShadows, Environment, SpotLight, RandomizedLight, useHelper } from "@react-three/drei"
+import { CameraControls, Bvh, PerformanceMonitor, AccumulativeShadows, Environment, SpotLight, RandomizedLight, useHelper } from "@react-three/drei"
 import { useControls } from 'leva'
+// import { useBVH } from './useBVH'
+
 
 import Model from "./Model"
 import Bmw from './Bmw'
@@ -33,6 +35,7 @@ export default function Experience() {
 
     const [degraded, degrade] = useState(false)
     const car = useRef()
+    useBVH(car)
     const cameraControl = useRef()
     const btn = document.querySelector('.btn')
     const { gl } = useThree()
@@ -69,8 +72,6 @@ export default function Experience() {
     
     useEffect(() => {
 
-        cameraControl.current.disconnect()
-
         const onRest = () => {
 
             cameraControl.current.removeEventListener( 'rest', onRest );
@@ -78,9 +79,9 @@ export default function Experience() {
             disableAutoRotate = false;
         
         }
-        
 
         // TOGGLE CAMERA CONTROLS
+        // cameraControl.current.disconnect()
         let active = false
         btn.addEventListener('click', () => {
 
@@ -126,12 +127,7 @@ export default function Experience() {
         }, [ camera ])
 
 
-        let intro = gsap.timeline({
-            // onStart: () => rotateScene.play(),
-            onStart: () => {
-                // cam.play()
-            }
-        })
+        let intro = gsap.timeline()
         intro.to('.preloader', {
             xPercent: 100,
             duration: 2,
@@ -404,11 +400,6 @@ export default function Experience() {
 
         let bg = document.querySelector('.switch')
         let knob = document.querySelector('.knob')  
-        
-        function disconnect() {
-            cam.timeScale(1).play()
-            cameraControl.current.removeEventListener('rest', disconnect)
-        }
 
         // Animate button
         let buttonTl = gsap.timeline({ 
@@ -531,9 +522,10 @@ export default function Experience() {
             {/* <Model scale={1.6} rotation={[0, Math.PI / 5, 0]} /> */}
             
             {/* <Tooltips /> */}
-            <TooltipsBmw ref={cameraControl} />
             
         </mesh>
+
+        <TooltipsBmw ref={cameraControl} />
 
         <AccumulativeShadows 
             position={[0, -1.01, 0]} 

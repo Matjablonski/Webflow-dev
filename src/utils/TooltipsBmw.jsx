@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import React from "react"
 import { useRef } from "react"
-import { Html } from "@react-three/drei"
+import { Html, Billboard } from "@react-three/drei"
 
 const TooltipsBmw = React.forwardRef((props, cameraControl) => {
 
@@ -10,13 +10,20 @@ const TooltipsBmw = React.forwardRef((props, cameraControl) => {
     return (
 
         <>
-            <Html 
+            {/* <Html 
                 key='wheels'
                 // ref={wheels}
-                position={[ 2, 0.8, 0 ]}
+                position={[ 2.2, 0.8, 0 ]}
                 wrapperClass='label'
                 distanceFactor={ distFactor }
-                // occlude="blending"
+                occlude="blending"
+                material={
+                    <meshPhysicalMaterial
+                      side={THREE.DoubleSide} // Required
+                      opacity={0.1} // Degree of influence of lighting on the HTML
+                    />
+                }
+                transform
                 // occlude={ car }
             >
                 <div 
@@ -31,7 +38,7 @@ const TooltipsBmw = React.forwardRef((props, cameraControl) => {
                         tips.timeScale(2).reverse()
                     }}
                 ></div>
-            </Html>
+            </Html> */}
 
             {/* <Html 
                 key='lights'
@@ -54,33 +61,53 @@ const TooltipsBmw = React.forwardRef((props, cameraControl) => {
                 ></div>
             </Html> */}
 
-            {/* <Html 
-                // center
+            {/* <Billboard
+                follow={true}
+                lockX={false}
+                lockY={false}
+                lockZ={false} // Lock the rotation on the z axis (default=false)
+                position={[ 2, 1.2, -3 ]}
+            > */}
+                <Html 
+                center
                 key='rearlight'
-                position={[ 2, 1.2, -2.7 ]}
                 wrapperClass='label'
                 distanceFactor={ distFactor }
-                // occlude="blending"
+                position={[ 2, 1.2, -3 ]}
+                as="div"
+                // transform
+                sprite
+                zIndexRange={[100, 0]}
+                occlude='blending'
                 // material={
                 //     <meshPhysicalMaterial
                 //       side={THREE.DoubleSide} // Required
-                //       opacity={0.1} // Degree of influence of lighting on the HTML
+                //       opacity={0.7} // Degree of influence of lighting on the HTML
                 //     />
                 // }
-                // occlude={ ref }
-                // transform
+                // onClick={ (e) => {
+                //     cameraControl.current.saveState()
+                //     // hideCameraBtn.play()
+                //     cameraControl.current.setLookAt( 8, 3, 0, 0.5, 1, -1.5, true)
+                //     cameraControl.current.dolly( 2, true )
+                //     // tips.timeScale(2).reverse()
+                //     console.log('tooltip clicked')
+                // }}
             >
-                <div 
+                <button 
                     className='event'
-                    onClick={ (e) => {
-                        cameraControl.current.saveState()
-                        hideCameraBtn.play()
-                        cameraControl.current.setLookAt( 8, 3, 0, 0.5, 1, -1.5, true)
-                        cameraControl.current.dolly( 2, true )
-                        tips.timeScale(2).reverse()
-                    }}
-                ></div>
-            </Html> */}
+                    // onClick={ (e) => {
+                    //     cameraControl.current.saveState()
+                    //     // hideCameraBtn.play()
+                    //     cameraControl.current.setLookAt( 8, 3, 0, 0.5, 1, -1.5, true)
+                    //     cameraControl.current.dolly( 2, true )
+                    //     // tips.timeScale(2).reverse()
+                    //     console.log('tooltip clicked')
+                    // }}
+                ></button>
+            </Html>
+            {/* </Billboard> */}
+            
 
             {/* <Html 
                 key='gauges'

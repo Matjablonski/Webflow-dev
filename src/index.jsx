@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import { createRoot } from 'react-dom/client'
 import { Canvas, extend } from '@react-three/fiber'
 import Experience from './utils/Experience.jsx'
-import { Effects } from "@react-three/drei"
+import { Effects, Bvh } from "@react-three/drei"
 import { EffectComposer, SSAO, N8AO, DepthOfField, Bloom, ToneMapping, Vignette } from '@react-three/postprocessing'
 import { UnrealBloomPass } from 'three-stdlib'
 
@@ -22,15 +22,15 @@ function App() {
                 //     gl.outputColorSpace = THREE.SRGBColorSpace
                 // }}
             >
-                <EffectComposer multisampling={10} disableNormalPass>
+                <Experience />
+                {/* <EffectComposer multisampling={10} disableNormalPass>
                     <Bloom mipmapBlur luminanceThreshold={5} />
                     <Vignette offset={0.3} darkness={0.5} />
                     <ToneMapping />
-                </EffectComposer>
-
-                {/* <Effects multisamping={8} renderIndex={1} disableGamma={true} disableRenderPass={false} disableRender={false}>
-                    <unrealBloomPass threshold={3} strength={0.5} radius={0} />
-                </Effects> */}
+                </EffectComposer> */}
+                <Effects multisamping={8} renderIndex={1} disableGamma={true} disableRenderPass={false} disableRender={false}>
+                    <unrealBloomPass threshold={3} strength={0.35} radius={0} />
+                </Effects>
 
             </Canvas>
         </div>
